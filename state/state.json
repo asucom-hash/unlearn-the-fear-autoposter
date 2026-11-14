@@ -1,12 +1,10 @@
 {
-  "next_quote": 0,
-  "history": [],
-  "pending": {
-    "quote_index": 0,
-    "quote": "You do not need to see the whole path. Just take the next step.",
-    "image_path": "posts/quote-0001.jpg",
-    "caption": "A thought worth carrying into today.\n\nYou do not need to see the whole path. Just take the next step.\n\nSave this reminder.\n\nUnlearn The Fear 🖤💛\n\n#UnlearnTheFear #Mindset #PersonalGrowth #Motivation #LifeLessons",
-    "instagram_post_id": "17888559708504172",
-    "facebook_post_id": "549236748476560_1456014119972455"
-  }
+  "next_quote": 1,
+  "history": [
+    {
+      "quote_index": 0,
+      "instagram_post_id": "17888559708504172",
+      "facebook_post_id": "549236748476560_1456014119972455"
+    }
+  ]
 }
