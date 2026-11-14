@@ -1,7 +1,8 @@
-"""Post a prepared image to Instagram and Facebook using a Page access token."""
+"""Publish safely with separate Instagram and Facebook credentials."""
 import os,time,subprocess,requests
 from urllib.parse import urljoin
 from prepare import ROOT,load_state,save_state
+from check_meta import check as verify_account
 
 def graph(method,path,params):
     ver=os.getenv('META_GRAPH_VERSION','v27.0').strip()
@@ -39,6 +40,13 @@ def main():
     page_token=os.getenv('META_PAGE_TOKEN','').strip()
     if not (page and ig and ig_token and page_token):
         raise RuntimeError('Missing account IDs or META_IG_TOKEN / META_PAGE_TOKEN secrets')
+    # Check BOTH credentials before making any new public post. If one has
+    # expired, leave the pending state intact, preventing a partial post.
+    # Previously published Instagram/Facebook IDs are never cleared or retried.
+    if not verify_account('Facebook Page',page,page_token,'id,name',None):
+        raise RuntimeError('Facebook Page credential invalid or expired. No new posts attempted. Replace GitHub Secret META_PAGE_TOKEN.')
+    if not verify_account('Instagram',ig,ig_token,'id,username','unlearnthefear'):
+        raise RuntimeError('Instagram credential invalid or expired. No new posts attempted. Check META_IG_TOKEN.')
     accessible=False
     for _ in range(16):
         try:
