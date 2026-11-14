@@ -20,7 +20,22 @@ Repository **Settings → Secrets and variables → Actions → Variables**:
 
 Under **Secrets**, add **two different secrets**: `META_IG_TOKEN` (Unified Login Instagram publishing token generated for @unlearnthefear) and `META_PAGE_TOKEN` (fresh Facebook Page publishing token), only after acquiring a properly scoped **Facebook Page access token** from your own Meta developer app. Never paste the token in a public GitHub file or in a chat.
 
-## Step 3 — Preview without publishing
+## Step 3 — Facebook token renewal
+
+The Facebook posting credential can renew itself before it expires. This avoids the hourly workflow stopping because a temporary Page token has become invalid.
+
+Create these additional **GitHub Actions Secrets**:
+
+- `META_USER_TOKEN`: a fresh User access token from the app's Graph API Explorer with `pages_show_list`, `pages_read_engagement`, and `pages_manage_posts`; select **Unlearn the Fear** when Meta asks which Page to allow.
+- `META_APP_ID`: the Meta app ID.
+- `META_APP_SECRET`: the Meta app secret from the app's Basic settings.
+- `META_GITHUB_SECRETS_TOKEN`: a fine-grained GitHub personal access token restricted to **this repository only**, with only **Secrets: write** repository permission. Give it a short practical expiry and replace it when it expires.
+
+On a manual workflow run with **Publish OFF** and **check_credentials ON**, the workflow exchanges the bootstrap User token for a long-lived one when needed, derives a Page token for the configured Page, validates it, and securely replaces `META_USER_TOKEN` and `META_PAGE_TOKEN`. It never prints the values.
+
+The scheduled workflow pauses safely, without publishing or failing, until all four renewal secrets are present. Instagram continues to use its separate `META_IG_TOKEN`; do not substitute the Facebook Page token for it.
+
+## Step 4 — Preview without publishing
 
 Open **Actions → Hourly Unlearn The Fear quotes → Run workflow**. Leave the Publish option OFF. The run tests the code, generates a JPEG, commits it to `docs/posts/`, and deploys it to GitHub Pages. Then visit:
 
@@ -30,7 +45,7 @@ No post goes to Instagram or Facebook during this preview. Scheduled runs publis
 
 If the run fails at Pages deploy: check Pages source = GitHub Actions, actions are enabled, and the `github-pages` environment is allowed. To get a new preview from the first quote, retain the pending draft and rerun.
 
-## Step 4 — Obtain your own Meta app access
+## Step 5 — Obtain your own Meta app access
 
 Open https://developers.facebook.com/apps and create/configure an app for **Instagram API with Facebook Login**, linked to the Unlearn The Fear Facebook Page and Instagram professional account. Meta might require roles, App Review, permissions or business verification depending on how the app and accounts are configured.
 
@@ -45,11 +60,11 @@ Select the Unlearn the Fear Page. Set its numeric Page ID, the linked Instagram 
 
 **Security:** Access tokens expire or can be revoked. If you use a short-lived token from Graph API Explorer, the workflow will stop when it expires. Review Meta's long-lived token and renewal requirements before unattended publishing. Never enter tokens in GitHub Variables, plaintext repository files, logs, or screenshots.
 
-## Step 5 — Check Meta tokens without posting
+## Step 6 — Check Meta tokens without posting
 
 Go to **Actions → Hourly Unlearn The Fear quotes → Run workflow**. Leave Publish OFF and set **check_credentials ON**. This makes two read-only API requests using the separately stored tokens and reports whether the account IDs are accessible. Never paste either token in a GitHub variable, repository file or screenshot. If the test fails, leave publish OFF and check which Meta token type and permissions you received.
 
-## Step 6 — Test one real post
+## Step 7 — Test one real post
 
 After the preview JPEG is publicly accessible, and IDs and token are installed, go to Actions → Run workflow → **Publish ON**. This is a REAL post to both platforms. Verify each post and the IDs recorded in `state/state.json` before enabling scheduled publishing.
 
@@ -63,7 +78,7 @@ The caption generator is `src/seo.py`. It draws from ten quote-bank topics (cour
 
 The `src/prepare.py` script upgrades any **fully unpublished** pending quote to this format at the next run, without changing its artwork. For safety, it leaves a post's existing caption alone once either Instagram or Facebook has published it. All previously published quotes are left untouched. Unit tests check title uniqueness, caption length and hashtag limits for all 180 quotes.
 
-## Step 7 — Enable the hourly schedule
+## Step 8 — Enable the hourly schedule
 
 The schedule is controlled by `.github/auto-publish.txt`, not by the deprecated repository variable. It currently contains `true` (LIVE). To pause, edit the file on the `main` branch and replace `true` with `false`; to resume change it back to `true`. Commit the change. The cron is at minute 23 of each UTC hour. GitHub may delay or skip scheduled runs; it is best effort, not guaranteed to run to the minute.
 
