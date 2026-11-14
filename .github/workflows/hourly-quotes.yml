@@ -38,6 +38,10 @@ jobs:
       META_PAGE_ID: ${{ vars.META_PAGE_ID }}
       META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
       META_IG_TOKEN: ${{ secrets.META_IG_TOKEN }}
+      META_USER_TOKEN: ${{ secrets.META_USER_TOKEN }}
+      META_APP_ID: ${{ secrets.META_APP_ID }}
+      META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+      META_GITHUB_SECRETS_TOKEN: ${{ secrets.META_GITHUB_SECRETS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -83,6 +87,12 @@ jobs:
           path: docs
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Renew Facebook Page token if due
+        if: >-
+          steps.publishing_mode.outputs.enabled == 'true' ||
+          (github.event_name == 'workflow_dispatch' &&
+          (inputs.check_credentials == true || inputs.publish == true))
+        run: python src/refresh_facebook_token.py
       - name: Read-only Meta token test (no posting)
         if: github.event_name == 'workflow_dispatch' && inputs.check_credentials == true && inputs.publish != true
         run: python src/check_meta.py
