@@ -2,7 +2,7 @@
 
 This project generates 1080×1080 black-and-gold landscape quote JPGs using Python and a bank of 180 original quotes. No Canva or paid AI service is required. GitHub Actions can host the images using GitHub Pages and publish to the Unlearn The Fear Instagram Professional account and Facebook Page using Meta's Graph API.
 
-**Publishing is OFF by default.** The scheduled workflow prepares one preview only until you explicitly enable it. Images and code are public, but access tokens must stay private in GitHub Actions Secrets.
+**Scheduled publishing is ON as of 2026-11-14, following the owner's approval and a successful live test.** It is controlled by the versioned file `.github/auto-publish.txt` (the exact text `true` enables automatic posting; `false` pauses it). Manual workflow runs publish only when the Publish input is ON. Images and code are public, but access tokens must stay private in GitHub Actions Secrets.
 
 ## Step 1 — Enable Pages
 
@@ -16,7 +16,7 @@ Repository **Settings → Secrets and variables → Actions → Variables**:
 - `META_GRAPH_VERSION` = version supported by your Meta app; starter default is `v27.0`. Check the current available version.
 - `META_IG_USER_ID` = numeric professional Instagram account ID linked to the Page.
 - `META_PAGE_ID` = numeric Facebook Page ID.
-- `ENABLE_AUTO_PUBLISH` = `false` (**leave OFF initially**).
+- `ENABLE_AUTO_PUBLISH` was part of the initial setup. **It is now deprecated and ignored**; the live switch is `.github/auto-publish.txt`. The old variable can remain `false` without blocking the new schedule.
 
 Under **Secrets**, add **two different secrets**: `META_IG_TOKEN` (Unified Login Instagram publishing token generated for @unlearnthefear) and `META_PAGE_TOKEN` (fresh Facebook Page publishing token), only after acquiring a properly scoped **Facebook Page access token** from your own Meta developer app. Never paste the token in a public GitHub file or in a chat.
 
@@ -26,7 +26,7 @@ Open **Actions → Hourly Unlearn The Fear quotes → Run workflow**. Leave the 
 
 https://asucom-hash.github.io/unlearn-the-fear-autoposter/posts/quote-0001.jpg
 
-No post goes to Instagram or Facebook during this preview. The scheduled hourly job also stays in preview-only mode until publishing is enabled.
+No post goes to Instagram or Facebook during this preview. Scheduled runs publish only when `.github/auto-publish.txt` contains `true`; otherwise they remain preview-only.
 
 If the run fails at Pages deploy: check Pages source = GitHub Actions, actions are enabled, and the `github-pages` environment is allowed. To get a new preview from the first quote, retain the pending draft and rerun.
 
@@ -57,10 +57,10 @@ If one platform fails, inspect the GitHub Actions log. The state attempts to avo
 
 ## Step 7 — Enable the hourly schedule
 
-In the Actions **Variables**, set `ENABLE_AUTO_PUBLISH=true`. The cron is at minute 23 of each UTC hour. GitHub may delay or skip scheduled runs; it is best effort, not guaranteed to run to the minute. To pause, set the variable back to `false`.
+The schedule is controlled by `.github/auto-publish.txt`, not by the deprecated repository variable. It currently contains `true` (LIVE). To pause, edit the file on the `main` branch and replace `true` with `false`; to resume change it back to `true`. Commit the change. The cron is at minute 23 of each UTC hour. GitHub may delay or skip scheduled runs; it is best effort, not guaranteed to run to the minute.
 
 **Content limit:** 180 unique quote posts = 7.5 days at 24 posts per day. The pipeline stops when the bank runs out instead of silently repeating. Add original quotes to `quotes.json` to extend it.
 
 **Costs:** These Python images need no paid AI API. GitHub Actions for public repos and GitHub Pages can be free within applicable usage rules, and Meta may impose rate/permission restrictions. Hourly posting can harm engagement; consider testing 1–3 posts a day first.
 
-**Important:** This is an automated publishing *template*, not an already connected live Meta publisher. The GitHub connection does not transfer Windsor.ai tokens or publishing access.
+**Current status:** A live Meta API test on 2026-11-14 published quote 1 to both Instagram and Facebook, and the owner subsequently approved live scheduled publishing. GitHub Actions Secrets hold tokens; no token is stored in this repository. Rotate any previously exposed access tokens and review expiration/renewal. The GitHub connection does not transfer Windsor.ai tokens.
