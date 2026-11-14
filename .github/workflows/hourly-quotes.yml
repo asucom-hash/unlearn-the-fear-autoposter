@@ -38,11 +38,19 @@ jobs:
       META_PAGE_ID: ${{ vars.META_PAGE_ID }}
       META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
       META_IG_TOKEN: ${{ secrets.META_IG_TOKEN }}
-      SHOULD_PUBLISH: ${{ (github.event_name == 'schedule' && vars.ENABLE_AUTO_PUBLISH == 'true') || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
+      SHOULD_PUBLISH: ${{ (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
+      - name: Read scheduled publishing switch
+        # A checked-in on/off flag lets connected automation manage the schedule
+        # without granting access to repository secrets or admin-only variables.
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] && [ -f .github/auto-publish.txt ] && [ "$(tr -d '[:space:]' < .github/auto-publish.txt)" = "true" ]; then
+            echo "SHOULD_PUBLISH=true" >> "$GITHUB_ENV"
+            echo "Automatic quote publishing is enabled."
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
