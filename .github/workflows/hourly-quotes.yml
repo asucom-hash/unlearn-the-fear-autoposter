@@ -38,18 +38,26 @@ jobs:
       META_PAGE_ID: ${{ vars.META_PAGE_ID }}
       META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
       META_IG_TOKEN: ${{ secrets.META_IG_TOKEN }}
-      SHOULD_PUBLISH: ${{ (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Read scheduled publishing switch
-        # A checked-in on/off flag lets connected automation manage the schedule
-        # without granting access to repository secrets or admin-only variables.
+      - name: Determine publishing mode
+        id: publishing_mode
+        # The checked-in flag is the scheduled on/off switch.
+        # Manual runs only publish when Publish is explicitly checked.
+        env:
+          MANUAL_PUBLISH: ${{ inputs.publish }}
         run: |
           if [ "$GITHUB_EVENT_NAME" = "schedule" ] && [ -f .github/auto-publish.txt ] && [ "$(tr -d '[:space:]' < .github/auto-publish.txt)" = "true" ]; then
-            echo "SHOULD_PUBLISH=true" >> "$GITHUB_ENV"
-            echo "Automatic quote publishing is enabled."
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "Hourly publishing is enabled."
+          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_PUBLISH" = "true" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "Manual publishing was explicitly requested."
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Preview-only: publishing disabled for this run."
           fi
       - uses: actions/setup-python@v5
         with:
@@ -79,8 +87,8 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.check_credentials == true && inputs.publish != true
         run: python src/check_meta.py
       - name: Publish if explicitly enabled
-        if: env.SHOULD_PUBLISH == 'true'
+        if: steps.publishing_mode.outputs.enabled == 'true'
         run: python src/publish.py
       - name: Safe preview (publishing disabled)
-        if: env.SHOULD_PUBLISH != 'true'
+        if: steps.publishing_mode.outputs.enabled != 'true'
         run: echo "Safe preview only; no Instagram or Facebook post."
