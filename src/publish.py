@@ -35,8 +35,10 @@ def main():
     image=urljoin(base,post['image_path'])
     page=os.getenv('META_PAGE_ID','').strip()
     ig=os.getenv('META_IG_USER_ID','').strip()
-    token=os.getenv('META_PAGE_TOKEN','').strip()
-    if not (page and ig and token):raise RuntimeError('Missing META_PAGE_ID, META_IG_USER_ID or META_PAGE_TOKEN')
+    ig_token=os.getenv('META_IG_TOKEN','').strip()
+    page_token=os.getenv('META_PAGE_TOKEN','').strip()
+    if not (page and ig and ig_token and page_token):
+        raise RuntimeError('Missing account IDs or META_IG_TOKEN / META_PAGE_TOKEN secrets')
     accessible=False
     for _ in range(16):
         try:
@@ -47,19 +49,19 @@ def main():
         time.sleep(8)
     if not accessible:raise RuntimeError('Image is not accessible as public JPEG: '+image)
     if not post.get('instagram_post_id'):
-        c=graph('POST',ig+'/media',{'image_url':image,'caption':post['caption'],'access_token':token})
+        c=graph('POST',ig+'/media',{'image_url':image,'caption':post['caption'],'access_token':ig_token})
         ready=False
         for _ in range(16):
-            status=graph('GET',c['id'],{'fields':'status_code','access_token':token}).get('status_code')
+            status=graph('GET',c['id'],{'fields':'status_code','access_token':ig_token}).get('status_code')
             if status=='FINISHED':ready=True;break
             if status in ('ERROR','EXPIRED'):raise RuntimeError('Instagram processing failed: '+status)
             time.sleep(5)
         if not ready:raise RuntimeError('Instagram image not ready; retry carefully')
-        out=graph('POST',ig+'/media_publish',{'creation_id':c['id'],'access_token':token})
+        out=graph('POST',ig+'/media_publish',{'creation_id':c['id'],'access_token':ig_token})
         post['instagram_post_id']=out['id'];checkpoint('Record Instagram post',state)
     if not post.get('facebook_post_id'):
         out=graph('POST',page+'/photos',{'url':image,'caption':post['caption'],
-                                        'published':'true','access_token':token})
+                                        'published':'true','access_token':page_token})
         post['facebook_post_id']=out.get('post_id') or out['id']
         checkpoint('Record Facebook post',state)
     if post['instagram_post_id'] and post['facebook_post_id']:
