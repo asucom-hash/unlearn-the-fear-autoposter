@@ -1,19 +1,15 @@
 {
-  "next_quote": 1,
+  "next_quote": 2,
   "history": [
     {
       "quote_index": 0,
       "instagram_post_id": "17888559708504172",
       "facebook_post_id": "549236748476560_1456014119972455"
+    },
+    {
+      "quote_index": 1,
+      "instagram_post_id": "17953537485346795",
+      "facebook_post_id": "549236748476560_1456140966626437"
     }
-  ],
-  "pending": {
-    "quote_index": 1,
-    "quote": "Courage is not the absence of fear. It is the decision to move anyway.",
-    "image_path": "posts/quote-0002.jpg",
-    "caption": "Overcome Fear: Courage is not the absence of fear 🖤💛\n\n“Courage is not the absence of fear. It is the decision to move anyway.”\n\nConfidence often follows action, not the other way round. This motivational reminder is about overcoming fear with small, brave decisions.\n\nWhich part of this message speaks to you? Share your thoughts in the comments.\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #FaceYourFears #ConfidenceBuilding #BraveChoices #TakeTheFirstStep",
-    "instagram_post_id": "17953537485346795",
-    "facebook_post_id": "549236748476560_1456140966626437",
-    "title": "Overcome Fear: Courage is not the absence of fear"
-  }
+  ]
 }
