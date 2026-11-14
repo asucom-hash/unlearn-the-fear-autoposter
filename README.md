@@ -55,6 +55,14 @@ After the preview JPEG is publicly accessible, and IDs and token are installed, 
 
 If one platform fails, inspect the GitHub Actions log. The state attempts to avoid repeating a successful post when retried, but external API failures can still produce rare duplicates.
 
+## Search-friendly captions and rotating hashtags
+
+Every upcoming Instagram and Facebook photo post now starts with a short **search-friendly headline**, followed by the exact original quote, an expanded topic-relevant description, a question or invitation to share, a follow prompt, and **five targeted hashtags**. Instagram and Facebook photo endpoints do not provide a separate, general-purpose search title field, so the headline is placed at the beginning of the caption.
+
+The caption generator is `src/seo.py`. It draws from ten quote-bank topics (courage, healing, mindfulness, self-worth, presence, self-care, resilience, relationships, hope and gratitude) and rotates a much larger pool of relevant hashtags. Instagram introduced a five-hashtag limit in December 2025; on Facebook, excessive tagging can also look spammy. The goal is better subject coverage and natural-language search keywords, not hashtag stuffing. Search visibility is not guaranteed.
+
+The `src/prepare.py` script upgrades any **fully unpublished** pending quote to this format at the next run, without changing its artwork. For safety, it leaves a post's existing caption alone once either Instagram or Facebook has published it. All previously published quotes are left untouched. Unit tests check title uniqueness, caption length and hashtag limits for all 180 quotes.
+
 ## Step 7 — Enable the hourly schedule
 
 The schedule is controlled by `.github/auto-publish.txt`, not by the deprecated repository variable. It currently contains `true` (LIVE). To pause, edit the file on the `main` branch and replace `true` with `false`; to resume change it back to `true`. Commit the change. The cron is at minute 23 of each UTC hour. GitHub may delay or skip scheduled runs; it is best effort, not guaranteed to run to the minute.
