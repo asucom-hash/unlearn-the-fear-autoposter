@@ -18,7 +18,7 @@ Repository **Settings → Secrets and variables → Actions → Variables**:
 - `META_PAGE_ID` = numeric Facebook Page ID.
 - `ENABLE_AUTO_PUBLISH` = `false` (**leave OFF initially**).
 
-Under **Secrets** add `META_PAGE_TOKEN` only after acquiring a properly scoped **Facebook Page access token** from your own Meta developer app. Never paste the token in a public GitHub file or in a chat.
+Under **Secrets**, add **two different secrets**: `META_IG_TOKEN` (Unified Login Instagram publishing token generated for @unlearnthefear) and `META_PAGE_TOKEN` (fresh Facebook Page publishing token), only after acquiring a properly scoped **Facebook Page access token** from your own Meta developer app. Never paste the token in a public GitHub file or in a chat.
 
 ## Step 3 — Preview without publishing
 
@@ -41,17 +41,21 @@ Permissions normally needed: `instagram_basic`, `instagram_content_publish`, `pa
 With the correct user permissions, a common discovery call is:
 `GET /me/accounts?fields=id,name,access_token,instagram_business_account`
 
-Select the Unlearn the Fear Page. Set its numeric Page ID, the linked Instagram Professional account ID, and its Page access token as described above. For this Facebook Login-based pipeline, both platforms use the properly permissioned Page token.
+Select the Unlearn the Fear Page. Set its numeric Page ID, the linked Instagram Professional account ID, and its Page access token as described above. For this Unified Login-based pipeline, **do not use the Page token for Instagram**. It uses `META_IG_TOKEN` for Instagram and `META_PAGE_TOKEN` for Facebook. Confirm that your Instagram token works with the `graph.facebook.com` Graph API route before enabling publishing. If your specific token is for `graph.instagram.com` instead, this starter needs a route-specific adjustment; do not enable publishing until the read-only token check passes.
 
 **Security:** Access tokens expire or can be revoked. If you use a short-lived token from Graph API Explorer, the workflow will stop when it expires. Review Meta's long-lived token and renewal requirements before unattended publishing. Never enter tokens in GitHub Variables, plaintext repository files, logs, or screenshots.
 
-## Step 5 — Test one real post
+## Step 5 — Check Meta tokens without posting
+
+Go to **Actions → Hourly Unlearn The Fear quotes → Run workflow**. Leave Publish OFF and set **check_credentials ON**. This makes two read-only API requests using the separately stored tokens and reports whether the account IDs are accessible. Never paste either token in a GitHub variable, repository file or screenshot. If the test fails, leave publish OFF and check which Meta token type and permissions you received.
+
+## Step 6 — Test one real post
 
 After the preview JPEG is publicly accessible, and IDs and token are installed, go to Actions → Run workflow → **Publish ON**. This is a REAL post to both platforms. Verify each post and the IDs recorded in `state/state.json` before enabling scheduled publishing.
 
 If one platform fails, inspect the GitHub Actions log. The state attempts to avoid repeating a successful post when retried, but external API failures can still produce rare duplicates.
 
-## Step 6 — Enable the hourly schedule
+## Step 7 — Enable the hourly schedule
 
 In the Actions **Variables**, set `ENABLE_AUTO_PUBLISH=true`. The cron is at minute 23 of each UTC hour. GitHub may delay or skip scheduled runs; it is best effort, not guaranteed to run to the minute. To pause, set the variable back to `false`.
 
