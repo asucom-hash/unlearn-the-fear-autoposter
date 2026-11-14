@@ -33,7 +33,7 @@ Create these additional **GitHub Actions Secrets**:
 
 On a manual workflow run with **Publish OFF** and **check_credentials ON**, the workflow exchanges the bootstrap User token for a long-lived one when needed, derives a Page token for the configured Page, validates it, and securely replaces `META_USER_TOKEN` and `META_PAGE_TOKEN`. It never prints the values.
 
-The scheduled workflow pauses safely, without publishing or failing, until all four renewal secrets are present. Instagram continues to use its separate `META_IG_TOKEN`; do not substitute the Facebook Page token for it.
+The scheduled workflow pauses safely, without publishing or failing, until the renewal token, app secret, and GitHub secrets token are present. Instagram continues to use its separate `META_IG_TOKEN`; do not substitute the Facebook Page token for it.
 
 ## Step 4 — Preview without publishing
 
