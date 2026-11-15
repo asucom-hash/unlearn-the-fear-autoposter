@@ -1,5 +1,5 @@
 {
-  "next_quote": 9,
+  "next_quote": 10,
   "history": [
     {
       "quote_index": 0,
@@ -45,15 +45,11 @@
       "quote_index": 8,
       "instagram_post_id": "17907332688669989",
       "facebook_post_id": "549236748476560_1457231809850686"
+    },
+    {
+      "quote_index": 9,
+      "instagram_post_id": "18213233530370192",
+      "facebook_post_id": "549236748476560_1457284106512123"
     }
-  ],
-  "pending": {
-    "quote_index": 9,
-    "quote": "Do not wait for certainty to give you permission to grow.",
-    "image_path": "posts/quote-0010.jpg",
-    "title": "Overcome Fear: Do not wait for certainty to give you permission to…",
-    "caption": "Overcome Fear: Do not wait for certainty to give you permission to… 🖤💛\n\n“Do not wait for certainty to give you permission to grow.”\n\nBuilding courage starts with one manageable step. You can face uncertainty, develop self-belief and keep moving forward without waiting to feel fearless.\n\nWhich part of this message speaks to you? Share your thoughts in the comments.\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #FaceYourFears #ConfidenceBuilding #BraveChoices #TakeTheFirstStep",
-    "instagram_post_id": "18213233530370192",
-    "facebook_post_id": "549236748476560_1457284106512123"
-  }
+  ]
 }
