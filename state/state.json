@@ -1,5 +1,5 @@
 {
-  "next_quote": 10,
+  "next_quote": 11,
   "history": [
     {
       "quote_index": 0,
@@ -50,15 +50,11 @@
       "quote_index": 9,
       "instagram_post_id": "18213233530370192",
       "facebook_post_id": "549236748476560_1457284106512123"
+    },
+    {
+      "quote_index": 10,
+      "instagram_post_id": "18391834066230459",
+      "facebook_post_id": "549236748476560_1457327603174440"
     }
-  ],
-  "pending": {
-    "quote_index": 10,
-    "quote": "Your future deserves a chance, even if your fear disagrees.",
-    "image_path": "posts/quote-0011.jpg",
-    "title": "Overcome Fear: Your future deserves a chance, even if your fear…",
-    "caption": "Overcome Fear: Your future deserves a chance, even if your fear… 🖤💛\n\n“Your future deserves a chance, even if your fear disagrees.”\n\nConfidence often follows action, not the other way round. This motivational reminder is about overcoming fear with small, brave decisions.\n\nShare this with someone who could use encouragement today.\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #TakeTheFirstStep #MindsetGrowth #OvercomeFear #BuildCourage",
-    "instagram_post_id": "18391834066230459",
-    "facebook_post_id": "549236748476560_1457327603174440"
-  }
+  ]
 }
