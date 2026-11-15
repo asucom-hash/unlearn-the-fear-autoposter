@@ -1,5 +1,5 @@
 {
-  "next_quote": 11,
+  "next_quote": 12,
   "history": [
     {
       "quote_index": 0,
@@ -55,15 +55,11 @@
       "quote_index": 10,
       "instagram_post_id": "18391834066230459",
       "facebook_post_id": "549236748476560_1457327603174440"
+    },
+    {
+      "quote_index": 11,
+      "instagram_post_id": "18346581238283296",
+      "facebook_post_id": "549236748476560_1457376366502897"
     }
-  ],
-  "pending": {
-    "quote_index": 11,
-    "quote": "There is no perfect moment. There is only the moment you choose.",
-    "image_path": "posts/quote-0012.jpg",
-    "title": "Overcome Fear: There is no perfect moment",
-    "caption": "Overcome Fear: There is no perfect moment 🖤💛\n\n“There is no perfect moment. There is only the moment you choose.”\n\nPersonal growth happens when you make room for courage alongside fear. Every step forward is a chance to strengthen your confidence.\n\nTake a moment to reflect: what would this look like in your own life?\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #BuildCourage #SelfBelief #FaceYourFears #ConfidenceBuilding",
-    "instagram_post_id": "18346581238283296",
-    "facebook_post_id": "549236748476560_1457376366502897"
-  }
+  ]
 }
