@@ -1,5 +1,5 @@
 {
-  "next_quote": 13,
+  "next_quote": 14,
   "history": [
     {
       "quote_index": 0,
@@ -65,15 +65,11 @@
       "quote_index": 12,
       "instagram_post_id": "18058651565804339",
       "facebook_post_id": "549236748476560_1457405853166615"
+    },
+    {
+      "quote_index": 13,
+      "instagram_post_id": "17957660793266378",
+      "facebook_post_id": "549236748476560_1457441766496357"
     }
-  ],
-  "pending": {
-    "quote_index": 13,
-    "quote": "You are allowed to start again without explaining why.",
-    "image_path": "posts/quote-0014.jpg",
-    "title": "Overcome Fear: You are allowed to start again without explaining why",
-    "caption": "Overcome Fear: You are allowed to start again without explaining why 🖤💛\n\n“You are allowed to start again without explaining why.”\n\nConfidence often follows action, not the other way round. This motivational reminder is about overcoming fear with small, brave decisions.\n\nWhich part of this message speaks to you? Share your thoughts in the comments.\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #MindsetGrowth #OvercomeFear #BuildCourage #SelfBelief",
-    "instagram_post_id": "17957660793266378",
-    "facebook_post_id": "549236748476560_1457441766496357"
-  }
+  ]
 }
