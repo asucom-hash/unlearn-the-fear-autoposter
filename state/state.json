@@ -1,5 +1,5 @@
 {
-  "next_quote": 5,
+  "next_quote": 6,
   "history": [
     {
       "quote_index": 0,
@@ -25,15 +25,11 @@
       "quote_index": 4,
       "instagram_post_id": "18360931996169389",
       "facebook_post_id": "549236748476560_1456913806549153"
+    },
+    {
+      "quote_index": 5,
+      "instagram_post_id": "18129862192907548",
+      "facebook_post_id": "549236748476560_1456954066545127"
     }
-  ],
-  "pending": {
-    "quote_index": 5,
-    "quote": "Begin before your confidence arrives. Confidence often follows action.",
-    "image_path": "posts/quote-0006.jpg",
-    "title": "Overcome Fear: Begin before your confidence arrives",
-    "caption": "Overcome Fear: Begin before your confidence arrives 🖤💛\n\n“Begin before your confidence arrives. Confidence often follows action.”\n\nPersonal growth happens when you make room for courage alongside fear. Every step forward is a chance to strengthen your confidence.\n\nWhich part of this message speaks to you? Share your thoughts in the comments.\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #MindsetGrowth #OvercomeFear #BuildCourage #SelfBelief",
-    "instagram_post_id": "18129862192907548",
-    "facebook_post_id": "549236748476560_1456954066545127"
-  }
+  ]
 }
