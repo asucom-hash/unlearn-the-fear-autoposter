@@ -1,6 +1,6 @@
 """Renew the Facebook Page token without printing any credentials.
 
-The workflow keeps a long-lived User token in META_USER_TOKEN.  It refreshes
+The workflow keeps a long-lived User token in META_USER_TOKEN. It refreshes
 that token when it is near expiry, derives a Page token, and stores both values
 back in GitHub Actions Secrets using a repository-scoped fine-grained token.
 """
@@ -90,6 +90,20 @@ def page_token_for(user_token: str, page_id: str) -> str:
             token = str(account.get("access_token") or "").strip()
             if token:
                 return token
+
+    # Meta Business Login can grant a selected Page while omitting it from
+    # /me/accounts. Retrieve that selected Page directly as a safe fallback.
+    direct = graph_get(
+        page_id,
+        {
+            "fields": "id,name,access_token",
+            "access_token": user_token,
+        },
+    )
+    token = str(direct.get("access_token") or "").strip()
+    if str(direct.get("id")) == page_id and token:
+        return token
+
     raise RuntimeError(
         "The configured Facebook Page is not available to META_USER_TOKEN. "
         "Re-authorize the app with that Page selected."
