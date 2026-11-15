@@ -9,7 +9,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from seo import build_post
 
 class TestPostMetadata(unittest.TestCase):
-    def test_all_180_quotes_have_unique_readable_titles_and_safe_captions(self):
+    def test_all_240_quotes_have_unique_readable_titles_and_safe_captions(self):
         quotes = json.loads((ROOT / "quotes.json").read_text())
         headlines = set()
         tag_banks = set()
