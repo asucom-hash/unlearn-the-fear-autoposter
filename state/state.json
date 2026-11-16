@@ -1,5 +1,5 @@
 {
-  "next_quote": 16,
+  "next_quote": 17,
   "history": [
     {
       "quote_index": 0,
@@ -80,15 +80,11 @@
       "quote_index": 15,
       "instagram_post_id": "18119420468118677",
       "facebook_post_id": "549236748476560_1457506519823215"
+    },
+    {
+      "quote_index": 16,
+      "instagram_post_id": "18108500927278548",
+      "facebook_post_id": "549236748476560_1457541453153055"
     }
-  ],
-  "pending": {
-    "quote_index": 16,
-    "quote": "Bravery can be as simple as trying again tomorrow.",
-    "image_path": "posts/quote-0017.jpg",
-    "title": "Overcome Fear: Bravery can be as simple as trying again tomorrow",
-    "caption": "Overcome Fear: Bravery can be as simple as trying again tomorrow 🖤💛\n\n“Bravery can be as simple as trying again tomorrow.”\n\nConfidence often follows action, not the other way round. This motivational reminder is about overcoming fear with small, brave decisions.\n\nSave this reminder for the days you need it. What small step can you take today?\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #OvercomeFear #BuildCourage #SelfBelief #FaceYourFears",
-    "instagram_post_id": "18108500927278548",
-    "facebook_post_id": "549236748476560_1457541453153055"
-  }
+  ]
 }
