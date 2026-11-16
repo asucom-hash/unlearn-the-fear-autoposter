@@ -7,7 +7,7 @@ This is a separate video pipeline. It does not interrupt the existing quote-imag
 * **Daily video**: a 9:16, 1080×1920 narrated motivational Short for YouTube, Facebook and Instagram.
 * **Tuesday and Friday reflection**: a 16:9 horizontal, 7+ minute guided reflection for YouTube and Facebook, plus a vertical Instagram Reel trailer that directs viewers to the full video.
 
-All scripts are original to Unlearn The Fear. The renderer pulls varied nature footage through Pexels, burns in captions, and creates an original low-volume ambient bed beneath the narration. It never uses an unlicensed music download.
+All scripts are original to Unlearn The Fear. The renderer selects varied licence-checked Wikimedia Commons nature images, burns in captions, and creates an original low-volume ambient bed beneath the narration. It never uses an unlicensed music download.
 
 ## Required one-time secrets
 
@@ -15,7 +15,6 @@ Add these as repository **Actions Secrets**. Never place their values in files, 
 
 | Secret | Purpose |
 | --- | --- |
-| `PEXELS_API_KEY` | Free Pexels API key used to select licensed nature footage. |
 | `GOOGLE_TTS_API_KEY` | Restricted Google Cloud Text-to-Speech key. Restrict it to the Text-to-Speech API. |
 | `YOUTUBE_TOKEN_JSON_B64` | Base64-encoded OAuth token JSON for the Unlearn The Fear channel, with only the `youtube.upload` scope. |
 | `META_PAGE_TOKEN` | Already used by the Facebook image poster; also uploads native Facebook video. |
@@ -39,7 +38,7 @@ Create a Google Cloud project, enable YouTube Data API v3, and create a Desktop 
 
 ## Costs and limits
 
-Pexels API use is free. Google Cloud Text-to-Speech requires billing to be enabled even when its free allocation covers the use. A daily short plus two narrated reflections each week should be far below the free WaveNet allocation; set a Google billing budget alert as a safeguard. GitHub Actions minutes are consumed by video rendering, so check the repository owner's monthly Actions allowance.
+Wikimedia Commons' public API needs no account or key. Google Cloud Text-to-Speech requires billing to be enabled even when its free allocation covers the use. A daily short plus two narrated reflections each week should be far below the free WaveNet allocation; set a Google billing budget alert as a safeguard. GitHub Actions minutes are consumed by video rendering, so check the repository owner's monthly Actions allowance.
 
 ## Image poster change after video launch
 

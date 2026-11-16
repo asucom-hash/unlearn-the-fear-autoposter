@@ -2,9 +2,9 @@
 
 The renderer intentionally keeps the final MP4 out of git. GitHub Pages hosts
 it only long enough for Instagram to ingest it, while Facebook and YouTube get
-the local file directly.  Source clips are selected through the Pexels API;
-the finished edit, captions, script and ambient bed are original to this
-project.
+the local file directly. Source images are selected from licence-checked
+Wikimedia Commons results; the finished edit, captions, script and ambient bed
+are original to this project.
 """
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ import base64
 import json
 import os
 import random
+import re
 import shutil
 import subprocess
 import textwrap
@@ -172,55 +173,75 @@ def synthesize(text: str, output: Path, *, long_form: bool) -> None:
     output.write_bytes(base64.b64decode(data["audioContent"]))
 
 
-def download_pexels(query: str, orientation: str, choice: int, output: Path) -> None:
-    key = os.getenv("PEXELS_API_KEY", "").strip()
-    if not key:
-        raise RuntimeError("Missing PEXELS_API_KEY. Add a free Pexels API key as a GitHub secret before rendering live videos.")
+def plain(value: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", value or "")).strip()
+
+
+def download_commons_image(query: str, choice: int, output: Path) -> dict:
+    """Download a usable Commons thumbnail and return its required credit.
+
+    New Pexels API key issuance is currently paused. Commons' public API lets
+    us remain key-free, but we honour each source's attribution in the caption.
+    Non-commercial and no-derivatives licences are explicitly rejected.
+    """
     response = requests.get(
-        "https://api.pexels.com/videos/search",
-        headers={"Authorization": key},
-        params={"query": query, "orientation": orientation, "size": "medium", "per_page": 15, "page": 1 + choice % 3},
+        "https://commons.wikimedia.org/w/api.php",
+        params={
+            "action": "query", "generator": "search", "gsrsearch": query,
+            "gsrnamespace": 6, "gsrlimit": 20, "prop": "imageinfo",
+            "iiprop": "url|extmetadata", "iiurlwidth": 1280, "format": "json",
+        },
+        headers={"User-Agent": "UnlearnTheFearVideoBot/1.0 (educational motivational video pipeline)"},
         timeout=45,
     )
     data = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
-    videos = data.get("videos", [])
-    if not response.ok or not videos:
-        raise RuntimeError(f"Pexels footage search failed for {query!r}: HTTP {response.status_code}")
-    video = videos[choice % len(videos)]
-    files = video.get("video_files", [])
-    candidates = [f for f in files if f.get("file_type") == "video/mp4"]
-    if orientation == "portrait":
-        candidates.sort(key=lambda f: (f.get("height", 0) >= f.get("width", 0), f.get("height", 0)), reverse=True)
-    else:
-        candidates.sort(key=lambda f: (f.get("width", 0) >= f.get("height", 0), f.get("width", 0)), reverse=True)
-    # The endpoint can include a 4K original. A 720p/1080p derivative is
-    # enough for this workflow and prevents a single background clip making a
-    # GitHub Actions render needlessly slow or too large for Pages.
-    practical = [f for f in candidates if max(f.get("width", 0), f.get("height", 0)) <= 1920]
-    if practical:
-        candidates = practical
-    candidates.sort(
-        key=lambda f: (
-            0 if ((f.get("height", 0) >= f.get("width", 0)) == (orientation == "portrait")) else 1,
-            abs(max(f.get("width", 0), f.get("height", 0)) - 1080),
-        )
+    pages = list(data.get("query", {}).get("pages", {}).values())
+    permitted: list[tuple[dict, dict, str]] = []
+    for page in pages:
+        title = page.get("title", "")
+        if not title.lower().endswith((".jpg", ".jpeg", ".png")):
+            continue
+        info = (page.get("imageinfo") or [{}])[0]
+        meta = info.get("extmetadata") or {}
+        licence = plain((meta.get("LicenseShortName") or {}).get("value", "")).lower()
+        if not licence or "noncommercial" in licence or "non-free" in licence or "no derivatives" in licence:
+            continue
+        if not any(label in licence for label in ("public domain", "cc0", "cc by", "cc-by")):
+            continue
+        source_url = info.get("thumburl") or info.get("url")
+        if source_url:
+            permitted.append((page, info, licence))
+    if not response.ok or not permitted:
+        raise RuntimeError(f"No permitted Wikimedia Commons image was found for {query!r}")
+    page, info, licence = permitted[choice % len(permitted)]
+    media = requests.get(
+        info.get("thumburl") or info["url"],
+        stream=True,
+        timeout=90,
+        headers={"User-Agent": "UnlearnTheFearVideoBot/1.0 (educational motivational video pipeline)"},
     )
-    if not candidates:
-        raise RuntimeError("Pexels returned no MP4 source for the selected clip")
-    with requests.get(candidates[0]["link"], stream=True, timeout=120) as media:
-        media.raise_for_status()
-        with output.open("wb") as handle:
-            for chunk in media.iter_content(1024 * 1024):
-                if chunk:
-                    handle.write(chunk)
+    media.raise_for_status()
+    with output.open("wb") as handle:
+        for chunk in media.iter_content(1024 * 1024):
+            if chunk:
+                handle.write(chunk)
+    meta = info.get("extmetadata") or {}
+    artist = plain((meta.get("Artist") or {}).get("value", "Wikimedia Commons contributor"))
+    return {
+        "title": page.get("title", "Wikimedia Commons image"),
+        "creator": artist or "Wikimedia Commons contributor",
+        "license": plain((meta.get("LicenseShortName") or {}).get("value", "")),
+        "source": f"https://commons.wikimedia.org/?curid={page.get('pageid')}",
+    }
 
 
 def make_overlay(path: Path, title: str, quote: str | None, *, width: int, height: int) -> None:
     im = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(im)
-    regular = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 32 if height > width else 26)
-    bold = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 58 if height > width else 46)
-    small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 24 if height > width else 20)
+    scale = width / (1080 if height > width else 1920)
+    regular = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", max(14, round((32 if height > width else 26) * scale)))
+    bold = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", max(24, round((58 if height > width else 46) * scale)))
+    small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", max(12, round((24 if height > width else 20) * scale)))
     draw.rectangle((0, 0, width, int(height * 0.14)), fill=(4, 7, 13, 135))
     draw.text((width // 2, int(height * 0.055)), "UNLEARN THE FEAR", anchor="mm", font=small, fill=GOLD)
     max_chars = 23 if height > width else 38
@@ -268,7 +289,11 @@ def make_visual(clips: list[Path], output: Path, *, width: int, height: int, dur
     for i, clip in enumerate(clips):
         segment = WORK / f"segment-{i}.mp4"
         vf = f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},fps=30,format=yuv420p,fade=t=in:st=0:d=0.7,fade=t=out:st={max(per_clip-0.7, 0):.2f}:d=0.7"
-        run(["ffmpeg", "-y", "-stream_loop", "-1", "-i", str(clip), "-t", f"{per_clip:.2f}", "-an", "-vf", vf, "-movflags", "+faststart", str(segment)])
+        if clip.suffix.lower() in {".jpg", ".jpeg", ".png"}:
+            source_args = ["-loop", "1", "-framerate", "30", "-i", str(clip)]
+        else:
+            source_args = ["-stream_loop", "-1", "-i", str(clip)]
+        run(["ffmpeg", "-y", *source_args, "-t", f"{per_clip:.2f}", "-an", "-vf", vf, "-movflags", "+faststart", str(segment)])
         segments.append(segment)
     listing = WORK / "clips.txt"
     listing.write_text("".join(f"file '{path.name}'\n" for path in segments))
@@ -287,7 +312,10 @@ def render_video(*, narration: Path, overlay: Path, output: Path, width: int, he
     chords = ((174.61, 261.63, 349.23), (146.83, 220.0, 293.66), (196.0, 246.94, 293.66), (130.81, 196.0, 261.63))
     root, third, fifth = chords[seed % len(chords)]
     ambient = f"0.018*sin(2*PI*{root}*t)+0.012*sin(2*PI*{third}*t)+0.008*sin(2*PI*{fifth}*t)"
-    style = "FontName=DejaVu Sans,FontSize=22,PrimaryColour=&H00F6F6F6,OutlineColour=&H90000000,BorderStyle=1,Outline=2,Alignment=2,MarginV=138" if height > width else "FontName=DejaVu Sans,FontSize=18,PrimaryColour=&H00F6F6F6,OutlineColour=&H90000000,BorderStyle=1,Outline=2,Alignment=2,MarginV=82"
+    caption_scale = width / (1080 if height > width else 1920)
+    caption_size = max(14, round((42 if height > width else 32) * caption_scale))
+    caption_margin = max(76, round((220 if height > width else 126) * caption_scale))
+    style = f"FontName=DejaVu Sans,FontSize={caption_size},PrimaryColour=&H00F6F6F6,OutlineColour=&H90000000,BorderStyle=1,Outline=3,Alignment=2,MarginV={caption_margin}"
     filter_graph = (
         f"[0:v][1:v]overlay=0:0,subtitles={subtitles.name}:force_style='{style}'[v];"
         f"[2:a]volume=1[narration];[3:a]lowpass=f=1300,volume=0.17[bed];"
@@ -375,10 +403,12 @@ def prepare(kind: str) -> dict:
     synthesize(transcript, narration, long_form=kind == "long")
     orientation = "portrait" if height > width else "landscape"
     clips: list[Path] = []
+    credits = []
     for pos, query in enumerate(queries):
-        clip = WORK / f"source-{pos}.mp4"
-        download_pexels(query, orientation, (pending.get("quote_index", pending.get("episode", 0)) * 7) + pos, clip)
+        clip = WORK / f"source-{pos}.jpg"
+        credits.append(download_commons_image(query, (pending.get("quote_index", pending.get("episode", 0)) * 7) + pos, clip))
         clips.append(clip)
+    pending["visual_credits"] = credits
     overlay = WORK / "overlay.png"
     make_overlay(overlay, pending["title"], overlay_quote, width=width, height=height)
     seed = int(pending.get("quote_index", pending.get("episode", 0)))

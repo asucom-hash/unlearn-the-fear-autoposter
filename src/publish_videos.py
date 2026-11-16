@@ -51,6 +51,21 @@ def check_public(url: str, expected_prefix: str) -> None:
     raise RuntimeError(f"Rendered MP4 is not publicly reachable yet: {url}")
 
 
+def caption_with_visual_credits(post: dict) -> str:
+    credits = post.get("visual_credits") or []
+    if not credits:
+        return post["caption"]
+    lines = ["Visual credits:"]
+    for credit in credits:
+        lines.append(f"{credit['title']} — {credit['creator']} ({credit['license']}): {credit['source']}")
+    caption = post["caption"] + "\n\n" + "\n".join(lines)
+    if len(caption) > 2_200:
+        # Instagram has the shortest caption limit. Keep the core caption and
+        # enough credits to preserve attribution without causing a failed post.
+        return post["caption"] + "\n\nVisual credits: Wikimedia Commons; full source record retained in the automation state."
+    return caption
+
+
 def upload_youtube(video: Path, post: dict, *, unlisted: bool) -> str:
     try:
         from google.auth.transport.requests import Request
@@ -70,7 +85,7 @@ def upload_youtube(video: Path, post: dict, *, unlisted: bool) -> str:
     request = client.videos().insert(
         part="snippet,status",
         body={
-            "snippet": {"title": post["title"][:100], "description": post["caption"], "tags": ["Unlearn The Fear", "motivation", "mindfulness", "personal growth"], "categoryId": "27"},
+            "snippet": {"title": post["title"][:100], "description": caption_with_visual_credits(post), "tags": ["Unlearn The Fear", "motivation", "mindfulness", "personal growth"], "categoryId": "27"},
             "status": {"privacyStatus": "unlisted" if unlisted else "public", "selfDeclaredMadeForKids": False},
         },
         media_body=MediaFileUpload(str(video), mimetype="video/mp4", resumable=True, chunksize=8 * 1024 * 1024),
@@ -83,7 +98,7 @@ def upload_youtube(video: Path, post: dict, *, unlisted: bool) -> str:
 
 
 def publish_instagram(post: dict, video_url: str, token: str, ig_id: str) -> str:
-    container = graph("POST", f"{ig_id}/media", params={"media_type": "REELS", "video_url": video_url, "caption": post["caption"], "share_to_feed": "true", "access_token": token})
+    container = graph("POST", f"{ig_id}/media", params={"media_type": "REELS", "video_url": video_url, "caption": caption_with_visual_credits(post), "share_to_feed": "true", "access_token": token})
     for _ in range(30):
         status = graph("GET", container["id"], params={"fields": "status_code", "access_token": token}).get("status_code")
         if status == "FINISHED":
@@ -96,7 +111,7 @@ def publish_instagram(post: dict, video_url: str, token: str, ig_id: str) -> str
 
 def publish_facebook(post: dict, video: Path, token: str, page_id: str) -> str:
     with video.open("rb") as handle:
-        response = graph("POST", f"{page_id}/videos", files={"source": (video.name, handle, "video/mp4")}, params={"title": post["title"], "description": post["caption"], "published": "true", "access_token": token})
+        response = graph("POST", f"{page_id}/videos", files={"source": (video.name, handle, "video/mp4")}, params={"title": post["title"], "description": caption_with_visual_credits(post), "published": "true", "access_token": token})
     return response.get("post_id") or response["id"]
 
 
