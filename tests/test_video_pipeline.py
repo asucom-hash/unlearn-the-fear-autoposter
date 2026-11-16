@@ -48,6 +48,31 @@ class VideoPipelineTests(unittest.TestCase):
         self.assertIn(",88,88,390,1", ass)
         self.assertIn("&H004AD4F7", ass)
 
+    def test_caption_timeline_uses_the_voice_duration_not_visual_hold(self):
+        output = ROOT / ".test-caption-timing.ass"
+        self.addCleanup(output.unlink, missing_ok=True)
+        make_ass_captions("First spoken thought. Second spoken thought.", 12.9, output, width=1080, height=1920)
+        dialogue = [line for line in output.read_text(encoding="utf-8").splitlines() if line.startswith("Dialogue:")]
+        self.assertTrue(dialogue)
+        self.assertNotIn("0:00:28", "\n".join(dialogue))
+        self.assertIn("0:00:12.", dialogue[-1])
+
+    def test_short_caption_cards_can_leave_the_final_spoken_line_clean(self):
+        output = ROOT / ".test-final-line.ass"
+        self.addCleanup(output.unlink, missing_ok=True)
+        make_ass_captions(
+            "First visible line. Final spoken line.",
+            8,
+            output,
+            width=1080,
+            height=1920,
+            omit_final_sentence=True,
+        )
+        ass = output.read_text(encoding="utf-8")
+        self.assertIn("First ", ass)
+        self.assertIn("line", ass)
+        self.assertNotIn("Final spoken line", ass)
+
     def test_original_visual_fallback_is_portrait_and_attributable(self):
         output = ROOT / ".test-fallback.jpg"
         self.addCleanup(output.unlink, missing_ok=True)
