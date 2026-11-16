@@ -118,7 +118,7 @@ def publish_facebook(post: dict, video: Path, token: str, page_id: str) -> str:
     return response.get("post_id") or response["id"]
 
 
-def publish(kind: str, *, youtube_unlisted: bool) -> None:
+def publish(kind: str, *, youtube_unlisted: bool, youtube_only: bool = False) -> None:
     state = load_state()
     key = f"pending_{kind}"
     post = state.get(key)
@@ -129,7 +129,7 @@ def publish(kind: str, *, youtube_unlisted: bool) -> None:
     page_token = os.getenv("META_PAGE_TOKEN", "").strip()
     ig_id = os.getenv("META_IG_USER_ID", "").strip()
     ig_token = os.getenv("META_IG_TOKEN", "").strip()
-    if not all((page_id, page_token, ig_id, ig_token)):
+    if not youtube_only and not all((page_id, page_token, ig_id, ig_token)):
         raise RuntimeError("Missing Meta account variables or tokens")
     video = DOCS / post["video_path"]
     if not video.exists():
@@ -142,6 +142,9 @@ def publish(kind: str, *, youtube_unlisted: bool) -> None:
     if not post.get("youtube_id"):
         post["youtube_id"] = upload_youtube(video, post, unlisted=youtube_unlisted)
         checkpoint(f"Record YouTube {kind} video", state)
+    if youtube_only:
+        print(f"Uploaded an unlisted YouTube {kind} video for review.")
+        return
     if not post.get("facebook_post_id"):
         post["facebook_post_id"] = publish_facebook(post, video, page_token, page_id)
         checkpoint(f"Record Facebook {kind} video", state)
@@ -166,5 +169,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("kind", choices=("short", "long"))
     parser.add_argument("--youtube-unlisted", action="store_true")
+    parser.add_argument("--youtube-only", action="store_true")
     args = parser.parse_args()
-    publish(args.kind, youtube_unlisted=args.youtube_unlisted)
+    publish(args.kind, youtube_unlisted=args.youtube_unlisted, youtube_only=args.youtube_only)
