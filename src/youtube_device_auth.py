@@ -103,7 +103,9 @@ def wait_for_tokens(client_id: str, device: dict) -> dict:
             raise RuntimeError("Google authorisation was declined.")
         if error == "expired_token":
             raise RuntimeError("The Google authorisation code expired. Start a new connection run.")
-        raise RuntimeError("Google could not complete the YouTube authorisation.")
+        detail = str(body.get("error_description") or "").strip()
+        suffix = f" ({error}: {detail})" if detail else f" ({error or 'unknown error'})"
+        raise RuntimeError("Google could not complete the YouTube authorisation" + suffix)
     raise RuntimeError("The Google authorisation code expired. Start a new connection run.")
 
 
