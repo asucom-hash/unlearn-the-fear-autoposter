@@ -1,0 +1,46 @@
+name: Preview retimed Unlearn The Fear Short
+
+on:
+  push:
+    paths:
+      - '.github/video-preview-now'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: unlearn-the-fear-video-preview
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    env:
+      YOUTUBE_TOKEN_JSON_B64: ${{ secrets.YOUTUBE_TOKEN_JSON_B64 }}
+      PIPER_VOICE: en_US-hfc_male-medium
+      PIPER_LENGTH_SCALE: '1.30'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: .piper-voices
+          key: piper-en-us-hfc-male-medium-v1
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+      - run: python -m pip install -r requirements.txt
+      - name: Test video helpers
+        run: python -m unittest discover -s tests -v
+      - name: Render retimed vertical Short
+        run: python src/video_pipeline.py short
+      - name: Commit retimed video state
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add state/video_state.json
+          if ! git diff --cached --quiet; then git commit -m 'Prepare retimed video preview'; git push; fi
+      - name: Upload unlisted YouTube preview only
+        run: python src/publish_videos.py short --youtube-unlisted --youtube-only
