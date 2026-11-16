@@ -2,5 +2,32 @@
   "next_short_quote": 24,
   "next_long_episode": 0,
   "short_history": [],
-  "long_history": []
+  "long_history": [],
+  "pending_short": {
+    "quote_index": 24,
+    "quote": "Release the need to understand every goodbye.",
+    "title": "Letting go with kindness | A Daily Reminder",
+    "caption": "Letting go with kindness.\n\n“Release the need to understand every goodbye.”\n\nA quiet reminder from Unlearn The Fear.\n\n#UnlearnTheFear #Mindset #Motivation #PersonalGrowth #InnerPeace",
+    "video_path": "reels/daily-0025.mp4",
+    "topic": "Healing",
+    "query": "calm ocean sunrise",
+    "youtube_id": null,
+    "instagram_post_id": null,
+    "facebook_post_id": null,
+    "visual_credits": [
+      {
+        "title": "File:Sunrise In Bull Island Dublin Ireland Landscape Photography (196665097).jpeg",
+        "creator": "Giuseppe Milo",
+        "license": "CC BY 3.0",
+        "source": "https://commons.wikimedia.org/?curid=71469263"
+      },
+      {
+        "title": "File:Ghadira Nature Reserve.jpg",
+        "creator": "JosephAmodio",
+        "license": "CC BY-SA 4.0",
+        "source": "https://commons.wikimedia.org/?curid=196381156"
+      }
+    ],
+    "duration_seconds": 28.0
+  }
 }
