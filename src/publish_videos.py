@@ -134,8 +134,10 @@ def publish(kind: str, *, youtube_unlisted: bool, youtube_only: bool = False) ->
     video = DOCS / post["video_path"]
     if not video.exists():
         raise RuntimeError("Rendered video is missing; re-run the renderer before publishing")
+    # A YouTube-only preview uploads the local MP4 directly and does not need
+    # the temporary public Pages URL used by Instagram ingestion.
     base = os.getenv("PAGES_BASE_URL", "").strip()
-    if not base.startswith("https://") or not base.endswith("/"):
+    if not youtube_only and (not base.startswith("https://") or not base.endswith("/")):
         raise RuntimeError("PAGES_BASE_URL must be an https URL ending in /")
     # Upload the main video to YouTube and Facebook. These two receive the
     # landscape long-form master; Instagram receives only its vertical trailer.
