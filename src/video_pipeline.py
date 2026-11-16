@@ -160,7 +160,13 @@ def synthesize(text: str, output: Path, *, long_form: bool) -> None:
     is cached by the Actions workflow after its first download. Use
     PIPER_VOICE only for a voice whose model-card licence has been reviewed.
     """
-    voice = os.getenv("PIPER_VOICE", "en_US-norman-medium")
+    # Ryan is a fuller, more natural male voice than the original Norman
+    # model.  A slightly longer phoneme scale keeps the delivery calm rather
+    # than rushed without stretching or artificially pitching the audio.
+    voice = os.getenv("PIPER_VOICE", "en_US-ryan-high")
+    length_scale = float(os.getenv("PIPER_LENGTH_SCALE", "1.14"))
+    if not 0.5 <= length_scale <= 2.0:
+        raise ValueError("PIPER_LENGTH_SCALE must be between 0.5 and 2.0")
     data_dir = Path(os.getenv("PIPER_DATA_DIR", ROOT / ".piper-voices"))
     data_dir.mkdir(parents=True, exist_ok=True)
     wav = output.with_suffix(".wav")
@@ -169,8 +175,17 @@ def synthesize(text: str, output: Path, *, long_form: bool) -> None:
         run(["python", "-m", "piper.download_voices", "--data-dir", str(data_dir), voice])
     # Piper takes the complete script as an argument, avoiding a shell and
     # keeping punctuation intact for a calmer, more natural read.
-    run(["python", "-m", "piper", "-m", voice, "--data-dir", str(data_dir), "-f", str(wav), "--", text])
-    run(["ffmpeg", "-y", "-i", str(wav), "-ar", "48000", "-c:a", "libmp3lame", "-b:a", "192k", str(output)])
+    run([
+        "python", "-m", "piper", "-m", voice, "--data-dir", str(data_dir),
+        "--length-scale", f"{length_scale:.2f}", "-f", str(wav), "--", text,
+    ])
+    # Gentle low-end warmth makes the male narration sound less thin, while
+    # preserving intelligibility on phone speakers.
+    run([
+        "ffmpeg", "-y", "-i", str(wav), "-af",
+        "lowshelf=f=180:g=4,highshelf=f=4000:g=-2,acompressor=threshold=-18dB:ratio=2:attack=20:release=180",
+        "-ar", "48000", "-c:a", "libmp3lame", "-b:a", "192k", str(output),
+    ])
 
 
 def plain(value: str) -> str:
@@ -251,8 +266,10 @@ def make_overlay(path: Path, title: str, quote: str | None, *, width: int, heigh
         draw.text((width // 2, y), line, anchor="mm", font=bold, fill=WHITE, stroke_width=2, stroke_fill=(0, 0, 0, 180))
         y += int(bold.size * 1.2)
     if quote:
-        box_top = int(height * (0.58 if height > width else 0.63))
-        box_bottom = min(height - 115, box_top + int(height * 0.22))
+        # Keep the persistent quote clear of the caption-safe area near the
+        # lower edge of a vertical Short.
+        box_top = int(height * (0.45 if height > width else 0.63))
+        box_bottom = min(height - 115, box_top + int(height * (0.15 if height > width else 0.22)))
         draw.rounded_rectangle((int(width * 0.08), box_top, int(width * 0.92), box_bottom), radius=28, fill=BLACK)
         lines = textwrap.wrap(quote, width=30 if height > width else 54)
         y = box_top + 44
@@ -263,22 +280,95 @@ def make_overlay(path: Path, title: str, quote: str | None, *, width: int, heigh
     im.save(path)
 
 
-def make_srt(text: str, duration: float, output: Path) -> None:
+CAPTION_STOP_WORDS = frozenset({
+    "a", "an", "and", "are", "as", "at", "be", "but", "by", "do", "for",
+    "from", "in", "is", "it", "of", "on", "or", "that", "the", "this", "to",
+    "with", "you", "your",
+})
+
+
+def ass_escape(value: str) -> str:
+    """Escape text before placing it in an ASS subtitle dialogue line."""
+    return value.replace("\\", r"\\").replace("{", r"\{").replace("}", r"\}")
+
+
+def caption_focus(sentence: str) -> tuple[int, int] | None:
+    """Choose one meaningful word to colour lavender in a caption card."""
+    candidates = [
+        match for match in re.finditer(r"[A-Za-z][A-Za-z'-]*", sentence)
+        if match.group(0).lower() not in CAPTION_STOP_WORDS
+    ]
+    if not candidates:
+        return None
+    best = max(candidates, key=lambda match: (len(match.group(0)), match.start()))
+    return best.span()
+
+
+def caption_rows(sentence: str, *, vertical: bool) -> list[str]:
+    """Wrap captions inside a fixed text-safe width before rendering them."""
+    return textwrap.wrap(
+        sentence,
+        width=32 if vertical else 54,
+        break_long_words=False,
+        break_on_hyphens=False,
+    ) or [sentence]
+
+
+def emphasise_ass(sentence: str) -> str:
+    focus = caption_focus(sentence)
+    if not focus:
+        return ass_escape(sentence)
+    start, end = focus
+    # Lavender foreground, then reset to the style's black text colour.
+    return (
+        f"{ass_escape(sentence[:start])}{{\\c&H00ED9CB7&}}"
+        f"{ass_escape(sentence[start:end])}{{\\r}}{ass_escape(sentence[end:])}"
+    )
+
+
+def make_ass_captions(text: str, duration: float, output: Path, *, width: int, height: int) -> None:
+    """Write high-contrast, in-frame caption cards for FFmpeg/libass."""
     sentences = [s.strip() for s in text.replace("?", ".").replace("!", ".").split(".") if s.strip()]
     weights = [max(6, len(sentence.split())) for sentence in sentences]
     total = sum(weights) or 1
     cursor = 0.35
-    lines: list[str] = []
+    vertical = height > width
+    font_size = 48 if vertical else 38
+    margin_lr = 88 if vertical else 130
+    # This keeps a two-line caption card away from platform controls, even on
+    # phones which crop or overlay the lower edge of a vertical video.
+    margin_v = 390 if vertical else 120
+    lines = [
+        "[Script Info]",
+        "ScriptType: v4.00+",
+        f"PlayResX: {width}",
+        f"PlayResY: {height}",
+        "WrapStyle: 2",
+        "ScaledBorderAndShadow: yes",
+        "",
+        "[V4+ Styles]",
+        "Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding",
+        # Opaque yellow card; black text; the one highlighted word is written
+        # with an ASS inline lavender colour override below.
+        f"Style: CaptionCard,DejaVu Sans,{font_size},&H00000000,&H00000000,&H004AD4F7,&H004AD4F7,-1,0,0,0,100,100,0,0,3,18,0,2,{margin_lr},{margin_lr},{margin_v},1",
+        "",
+        "[Events]",
+        "Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text",
+    ]
+
+    def stamp(value: float) -> str:
+        total_centis = int(round(value * 100))
+        hours, total_centis = divmod(total_centis, 360_000)
+        minutes, total_centis = divmod(total_centis, 6_000)
+        seconds, centis = divmod(total_centis, 100)
+        return f"{hours}:{minutes:02}:{seconds:02}.{centis:02}"
+
     for number, (sentence, weight) in enumerate(zip(sentences, weights), start=1):
         length = max(2.0, duration * weight / total)
         end = min(duration - 0.1, cursor + length)
-        def stamp(value: float) -> str:
-            millis = int(round(value * 1000))
-            hours, millis = divmod(millis, 3_600_000)
-            minutes, millis = divmod(millis, 60_000)
-            seconds, millis = divmod(millis, 1000)
-            return f"{hours:02}:{minutes:02}:{seconds:02},{millis:03}"
-        lines.extend((str(number), f"{stamp(cursor)} --> {stamp(end)}", textwrap.fill(sentence, width=42), ""))
+        rows = caption_rows(sentence, vertical=vertical)
+        caption = r"\N".join(emphasise_ass(row) for row in rows)
+        lines.append(f"Dialogue: 0,{stamp(cursor)},{stamp(end)},CaptionCard,,0,0,0,,{caption}")
         cursor = end + 0.10
     output.write_text("\n".join(lines), encoding="utf-8")
 
@@ -305,22 +395,17 @@ def render_video(*, narration: Path, overlay: Path, output: Path, width: int, he
     duration = max(28.0, audio_duration + 1.4) if height > width else max(420.0, audio_duration + 2.0)
     visual = WORK / "visual.mp4"
     make_visual(clips, visual, width=width, height=height, duration=duration)
-    subtitles = WORK / "captions.srt"
-    make_srt(CURRENT_TRANSCRIPT, duration, subtitles)
+    subtitles = WORK / "captions.ass"
+    make_ass_captions(CURRENT_TRANSCRIPT, duration, subtitles, width=width, height=height)
     # Generated sine-pad audio is original, avoids copyright claims, and stays
     # deliberately below the narration.
     chords = ((174.61, 261.63, 349.23), (146.83, 220.0, 293.66), (196.0, 246.94, 293.66), (130.81, 196.0, 261.63))
     root, third, fifth = chords[seed % len(chords)]
     ambient = f"0.018*sin(2*PI*{root}*t)+0.012*sin(2*PI*{third}*t)+0.008*sin(2*PI*{fifth}*t)"
-    caption_scale = width / (1080 if height > width else 1920)
-    caption_size = max(14, round((42 if height > width else 32) * caption_scale))
-    caption_margin = max(76, round((220 if height > width else 126) * caption_scale))
-    style = f"FontName=DejaVu Sans,FontSize={caption_size},PrimaryColour=&H00F6F6F6,OutlineColour=&H90000000,BorderStyle=1,Outline=3,Alignment=2,MarginV={caption_margin}"
-    # SRT has no intrinsic canvas size. Explicitly declare it here so libass
-    # does not scale a modest 42px caption as though it belongs to a 288px
-    # preview canvas (which would make captions enormous on a 1080px Short).
+    # The ASS file declares its canvas and generous safe margins itself, so
+    # libass does not scale the caption card unexpectedly on a 9:16 Short.
     filter_graph = (
-        f"[0:v][1:v]overlay=0:0,subtitles={subtitles.name}:original_size={width}x{height}:force_style='{style}'[v];"
+        f"[0:v][1:v]overlay=0:0,ass={subtitles.name}[v];"
         f"[2:a]volume=1[narration];[3:a]lowpass=f=1300,volume=0.17[bed];"
         "[narration][bed]amix=inputs=2:duration=first:dropout_transition=2[a]"
     )
