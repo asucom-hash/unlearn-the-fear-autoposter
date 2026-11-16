@@ -64,12 +64,11 @@ def caption_with_visual_credits(post: dict) -> str:
     return caption
 
 
-def upload_youtube(video: Path, post: dict, *, unlisted: bool) -> str:
+def youtube_client():
     try:
         from google.auth.transport.requests import Request
         from google.oauth2.credentials import Credentials
         from googleapiclient.discovery import build
-        from googleapiclient.http import MediaFileUpload
     except ImportError as exc:
         raise RuntimeError("YouTube dependencies are missing from requirements.txt") from exc
     raw = os.getenv("YOUTUBE_TOKEN_JSON_B64", "").strip()
@@ -84,7 +83,15 @@ def upload_youtube(video: Path, post: dict, *, unlisted: bool) -> str:
     credentials = Credentials.from_authorized_user_info(token, scopes)
     if not credentials.valid:
         credentials.refresh(Request())
-    client = build("youtube", "v3", credentials=credentials, cache_discovery=False)
+    return build("youtube", "v3", credentials=credentials, cache_discovery=False)
+
+
+def upload_youtube(video: Path, post: dict, *, unlisted: bool) -> str:
+    try:
+        from googleapiclient.http import MediaFileUpload
+    except ImportError as exc:
+        raise RuntimeError("YouTube dependencies are missing from requirements.txt") from exc
+    client = youtube_client()
     request = client.videos().insert(
         part="snippet,status",
         body={
@@ -98,6 +105,17 @@ def upload_youtube(video: Path, post: dict, *, unlisted: bool) -> str:
     while response is None:
         _, response = request.next_chunk()
     return response["id"]
+
+
+def make_youtube_video_public(video_id: str) -> None:
+    """Promote the approved unlisted review upload without making a duplicate."""
+    youtube_client().videos().update(
+        part="status",
+        body={
+            "id": video_id,
+            "status": {"privacyStatus": "public", "selfDeclaredMadeForKids": False},
+        },
+    ).execute()
 
 
 def publish_instagram(post: dict, video_url: str, token: str, ig_id: str) -> str:
@@ -144,6 +162,8 @@ def publish(kind: str, *, youtube_unlisted: bool, youtube_only: bool = False) ->
     if not post.get("youtube_id"):
         post["youtube_id"] = upload_youtube(video, post, unlisted=youtube_unlisted)
         checkpoint(f"Record YouTube {kind} video", state)
+    elif not youtube_unlisted:
+        make_youtube_video_public(post["youtube_id"])
     if youtube_only:
         print(f"Uploaded an unlisted YouTube {kind} video for review.")
         return
