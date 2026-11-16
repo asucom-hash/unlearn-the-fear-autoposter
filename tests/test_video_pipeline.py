@@ -11,6 +11,7 @@ from video_pipeline import (
     emphasise_ass,
     long_transcript,
     make_ass_captions,
+    make_original_nature_fallback,
     short_transcript,
     topic_for,
 )
@@ -46,6 +47,15 @@ class VideoPipelineTests(unittest.TestCase):
         self.assertIn("PlayResX: 1080", ass)
         self.assertIn(",88,88,390,1", ass)
         self.assertIn("&H004AD4F7", ass)
+
+    def test_original_visual_fallback_is_portrait_and_attributable(self):
+        output = ROOT / ".test-fallback.jpg"
+        self.addCleanup(output.unlink, missing_ok=True)
+        credit = make_original_nature_fallback(output, choice=3)
+        from PIL import Image
+        with Image.open(output) as image:
+            self.assertEqual(image.size, (1080, 1920))
+        self.assertEqual(credit["creator"], "Unlearn The Fear")
 
 if __name__ == "__main__":
     unittest.main()
