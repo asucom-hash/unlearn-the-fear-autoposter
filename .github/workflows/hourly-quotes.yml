@@ -55,57 +55,7 @@ jobs:
         run: |
           if [ "$GITHUB_EVENT_NAME" = "schedule" ] && [ -f .github/auto-publish.txt ] && [ "$(tr -d '[:space:]' < .github/auto-publish.txt)" = "true" ]; then
             if [ -n "$META_USER_TOKEN" ] && [ -n "$META_APP_ID" ] && [ -n "$META_APP_SECRET" ] && [ -n "$META_GITHUB_SECRETS_TOKEN" ]; then
-              last_publish="$(git log -1 --format=%ct --grep='^Complete quote publication
-              echo "enabled=false" >> "$GITHUB_OUTPUT"
-              echo "Publishing is safely paused until Facebook token renewal is configured."
-            fi
-          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_PUBLISH" = "true" ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-            echo "Manual publishing was explicitly requested."
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "Preview-only: publishing disabled for this run."
-          fi
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: sudo apt-get update -qq && sudo apt-get install -y -qq fonts-dejavu-core
-      - run: python -m pip install -r requirements.txt
-      - name: Run offline image tests
-        run: python -m unittest discover -s tests -v
-      - name: Generate or resume pending image
-        run: python src/prepare.py
-      - name: Commit generated artwork
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add docs state
-          if ! git diff --cached --quiet; then
-            git commit -m 'Prepare next quote image'
-            git push
-          fi
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
-        with:
-          path: docs
-      - id: deployment
-        uses: actions/deploy-pages@v4
-      - name: Renew Facebook Page token if due
-        if: >-
-          steps.publishing_mode.outputs.enabled == 'true' ||
-          (github.event_name == 'workflow_dispatch' &&
-          (inputs.check_credentials == true || inputs.publish == true))
-        run: python src/refresh_facebook_token.py
-      - name: Read-only Meta token test (no posting)
-        if: github.event_name == 'workflow_dispatch' && inputs.check_credentials == true && inputs.publish != true
-        run: python src/check_meta.py
-      - name: Publish if explicitly enabled
-        if: steps.publishing_mode.outputs.enabled == 'true'
-        run: python src/publish.py
-      - name: Safe preview (publishing disabled)
-        if: steps.publishing_mode.outputs.enabled != 'true'
-        run: echo "Safe preview only; no Instagram or Facebook post."
- || true)"
+              last_publish="$(git log -1 --format=%ct --grep='^Complete quote publication$' || true)"
               if [ -n "$last_publish" ] && [ "$(( $(date +%s) - last_publish ))" -lt 3300 ]; then
                 echo "enabled=false" >> "$GITHUB_OUTPUT"
                 echo "Scheduled post skipped: a quote was published less than 55 minutes ago."
