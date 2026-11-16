@@ -76,7 +76,12 @@ def upload_youtube(video: Path, post: dict, *, unlisted: bool) -> str:
     if not raw:
         raise RuntimeError("Missing YOUTUBE_TOKEN_JSON_B64 GitHub secret. Complete the one-time YouTube OAuth connection first.")
     token = json.loads(base64.b64decode(raw))
-    credentials = Credentials.from_authorized_user_info(token, ["https://www.googleapis.com/auth/youtube.upload"])
+    # The normal desktop consent uses youtube.upload. The headless device
+    # connection uses Google's supported youtube scope, which also authorizes
+    # uploads. Preserve the scope stored with the token rather than narrowing
+    # it locally and making the OAuth client appear inconsistent.
+    scopes = token.get("scopes") or ["https://www.googleapis.com/auth/youtube.upload"]
+    credentials = Credentials.from_authorized_user_info(token, scopes)
     if not credentials.valid:
         credentials.refresh(Request())
     client = build("youtube", "v3", credentials=credentials, cache_discovery=False)

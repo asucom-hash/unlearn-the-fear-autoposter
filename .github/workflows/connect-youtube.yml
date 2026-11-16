@@ -1,0 +1,29 @@
+name: Connect Unlearn The Fear YouTube uploader
+
+on:
+  workflow_dispatch:
+    inputs:
+      client_id:
+        description: OAuth client ID from the Google TV and Limited Input client
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      YOUTUBE_OAUTH_CLIENT_ID: ${{ inputs.client_id }}
+      META_GITHUB_SECRETS_TOKEN: ${{ secrets.META_GITHUB_SECRETS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Request Google approval and save the encrypted connection
+        run: |
+          python -m pip install --disable-pip-version-check --quiet 'requests>=2.31,<3' 'PyNaCl>=1.5,<2'
+          python src/youtube_device_auth.py
