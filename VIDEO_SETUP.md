@@ -16,6 +16,7 @@ Add these as repository **Actions Secrets**. Never place their values in files, 
 | Secret | Purpose |
 | --- | --- |
 | `YOUTUBE_TOKEN_JSON_B64` | Encrypted GitHub-secret copy of the YouTube OAuth connection for the Unlearn The Fear channel. |
+| `YOUTUBE_OAUTH_CLIENT_SECRET` | Google OAuth client secret, stored only in GitHub Actions Secrets. |
 | `META_PAGE_TOKEN` | Already used by the Facebook image poster; also uploads native Facebook video. |
 | `META_IG_TOKEN` | Already used by the Instagram image poster; also publishes Reels. |
 
@@ -33,7 +34,7 @@ Scheduled daily video is 17:30 UTC. The twice-weekly long-form workflow runs Tue
 
 ## YouTube OAuth token
 
-Create a Google Cloud project, enable YouTube Data API v3, configure the Google Auth platform, and create a **TVs and Limited Input devices** OAuth client. Run **Connect Unlearn The Fear YouTube uploader** in Actions, enter its public client ID, then approve the one-time Google device code using the Unlearn The Fear channel. The workflow encrypts the resulting refresh token directly into `YOUTUBE_TOKEN_JSON_B64`; it never stores your Google password or prints the token. Google's device flow requires the YouTube management scope, which includes uploads.
+Create a Google Cloud project, enable YouTube Data API v3, configure the Google Auth platform, and create a **TVs and Limited Input devices** OAuth client. Store its client secret as `YOUTUBE_OAUTH_CLIENT_SECRET` in GitHub Actions Secrets. Run **Connect Unlearn The Fear YouTube uploader** in Actions, enter its public client ID, then approve the one-time Google device code using the Unlearn The Fear channel. The workflow encrypts the resulting refresh token directly into `YOUTUBE_TOKEN_JSON_B64`; it never stores your Google password or prints the token. Google's device flow requires the YouTube management scope, which includes uploads.
 
 ## Costs and limits
 
