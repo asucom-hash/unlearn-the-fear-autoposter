@@ -1,8 +1,8 @@
-name: Hourly Unlearn The Fear quotes
+name: Four daily Unlearn The Fear quotes
 
 on:
   schedule:
-    - cron: '23 * * * *'
+    - cron: '23 8,12,16,20 * * *'
   workflow_dispatch:
     inputs:
       publish:
@@ -56,12 +56,12 @@ jobs:
           if [ "$GITHUB_EVENT_NAME" = "schedule" ] && [ -f .github/auto-publish.txt ] && [ "$(tr -d '[:space:]' < .github/auto-publish.txt)" = "true" ]; then
             if [ -n "$META_USER_TOKEN" ] && [ -n "$META_APP_ID" ] && [ -n "$META_APP_SECRET" ] && [ -n "$META_GITHUB_SECRETS_TOKEN" ]; then
               last_publish="$(git log -1 --format=%ct --grep='^Complete quote publication$' || true)"
-              if [ -n "$last_publish" ] && [ "$(( $(date +%s) - last_publish ))" -lt 3300 ]; then
+              if [ -n "$last_publish" ] && [ "$(( $(date +%s) - last_publish ))" -lt 10800 ]; then
                 echo "enabled=false" >> "$GITHUB_OUTPUT"
-                echo "Scheduled post skipped: a quote was published less than 55 minutes ago."
+                echo "Scheduled post skipped: a quote was published less than three hours ago."
               else
                 echo "enabled=true" >> "$GITHUB_OUTPUT"
-                echo "Hourly publishing is enabled."
+                echo "Four-times-daily publishing is enabled."
               fi
             else
               echo "enabled=false" >> "$GITHUB_OUTPUT"
