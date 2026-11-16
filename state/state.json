@@ -1,5 +1,5 @@
 {
-  "next_quote": 20,
+  "next_quote": 21,
   "history": [
     {
       "quote_index": 0,
@@ -100,15 +100,11 @@
       "quote_index": 19,
       "instagram_post_id": "18115733750609811",
       "facebook_post_id": "549236748476560_1457747003132500"
+    },
+    {
+      "quote_index": 20,
+      "instagram_post_id": "18653515078006987",
+      "facebook_post_id": "549236748476560_1457844126456121"
     }
-  ],
-  "pending": {
-    "quote_index": 20,
-    "quote": "Letting go does not erase love. It makes room for life.",
-    "image_path": "posts/quote-0021.jpg",
-    "title": "Letting Go and Healing: Letting go does not erase love",
-    "caption": "Letting Go and Healing: Letting go does not erase love 🖤💛\n\n“Letting go does not erase love. It makes room for life.”\n\nFinding peace after change takes patience. This reminder is for anyone learning to let go, recover and choose a calmer future.\n\nSave this reminder for the days you need it. What small step can you take today?\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #MovingForward #SelfCompassion #PeaceOfMind #EmotionalGrowth",
-    "instagram_post_id": "18653515078006987",
-    "facebook_post_id": "549236748476560_1457844126456121"
-  }
+  ]
 }
