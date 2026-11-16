@@ -1,5 +1,5 @@
 {
-  "next_quote": 24,
+  "next_quote": 25,
   "history": [
     {
       "quote_index": 0,
@@ -120,15 +120,11 @@
       "quote_index": 23,
       "instagram_post_id": "18147444967578067",
       "facebook_post_id": "549236748476560_1458283916412142"
+    },
+    {
+      "quote_index": 24,
+      "instagram_post_id": "18153473389552424",
+      "facebook_post_id": "549236748476560_1458390133068187"
     }
-  ],
-  "pending": {
-    "quote_index": 24,
-    "quote": "Release the need to understand every goodbye.",
-    "image_path": "posts/quote-0025.jpg",
-    "title": "Letting Go and Healing: Release the need to understand every goodbye",
-    "caption": "Letting Go and Healing: Release the need to understand every goodbye 🖤💛\n\n“Release the need to understand every goodbye.”\n\nEmotional healing is not about erasing the past. Letting go can help you move forward with self-compassion and more peace of mind.\n\nSave this reminder for the days you need it. What small step can you take today?\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #LettingGo #EmotionalHealing #HealingJourney #InnerPeace",
-    "instagram_post_id": "18153473389552424",
-    "facebook_post_id": "549236748476560_1458390133068187"
-  }
+  ]
 }
