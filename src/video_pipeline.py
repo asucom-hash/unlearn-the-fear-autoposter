@@ -364,7 +364,7 @@ def prepare(kind: str) -> dict:
             state[key] = pending
             save_state(state)
         transcript = short_transcript(pending["quote"], pending["topic"])
-        width, height, queries = 1080, 1920, [pending["query"], "peaceful nature slow motion"]
+        width, height, queries = 1080, 1920, [pending["query"], "calm nature landscape"]
         output = DOCS / pending["video_path"]
         overlay_quote = pending["quote"]
     elif kind == "long":
