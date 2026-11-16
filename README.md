@@ -22,7 +22,7 @@ Under **Secrets**, add **two different secrets**: `META_IG_TOKEN` (Unified Login
 
 ## Step 3 — Facebook token renewal
 
-The Facebook posting credential can renew itself before it expires. This avoids the hourly workflow stopping because a temporary Page token has become invalid.
+The Facebook posting credential can renew itself before it expires. This avoids the four-times-daily workflow stopping because a temporary Page token has become invalid.
 
 Create these additional **GitHub Actions Secrets**:
 
@@ -37,7 +37,7 @@ The scheduled workflow pauses safely, without publishing or failing, until the r
 
 ## Step 4 — Preview without publishing
 
-Open **Actions → Hourly Unlearn The Fear quotes → Run workflow**. Leave the Publish option OFF. The run tests the code, generates a JPEG, commits it to `docs/posts/`, and deploys it to GitHub Pages. Then visit:
+Open **Actions → Four daily Unlearn The Fear quotes → Run workflow**. Leave the Publish option OFF. The run tests the code, generates a JPEG, commits it to `docs/posts/`, and deploys it to GitHub Pages. Then visit:
 
 https://asucom-hash.github.io/unlearn-the-fear-autoposter/posts/quote-0001.jpg
 
@@ -62,7 +62,7 @@ Select the Unlearn the Fear Page. Set its numeric Page ID, the linked Instagram 
 
 ## Step 6 — Check Meta tokens without posting
 
-Go to **Actions → Hourly Unlearn The Fear quotes → Run workflow**. Leave Publish OFF and set **check_credentials ON**. This makes two read-only API requests using the separately stored tokens and reports whether the account IDs are accessible. Never paste either token in a GitHub variable, repository file or screenshot. If the test fails, leave publish OFF and check which Meta token type and permissions you received.
+Go to **Actions → Four daily Unlearn The Fear quotes → Run workflow**. Leave Publish OFF and set **check_credentials ON**. This makes two read-only API requests using the separately stored tokens and reports whether the account IDs are accessible. Never paste either token in a GitHub variable, repository file or screenshot. If the test fails, leave publish OFF and check which Meta token type and permissions you received.
 
 ## Step 7 — Test one real post
 
@@ -78,12 +78,12 @@ The caption generator is `src/seo.py`. It draws from ten quote-bank topics (cour
 
 The `src/prepare.py` script upgrades any **fully unpublished** pending quote to this format at the next run, without changing its artwork. For safety, it leaves a post's existing caption alone once either Instagram or Facebook has published it. All previously published quotes are left untouched. Unit tests check title uniqueness, caption length and hashtag limits for all 180 quotes.
 
-## Step 8 — Enable the hourly schedule
+## Step 8 — Enable the four-times-daily schedule
 
-The schedule is controlled by `.github/auto-publish.txt`, not by the deprecated repository variable. It currently contains `true` (LIVE). To pause, edit the file on the `main` branch and replace `true` with `false`; to resume change it back to `true`. Commit the change. The cron is at minute 23 of each UTC hour. GitHub may delay or skip scheduled runs; it is best effort, not guaranteed to run to the minute.
+The schedule is controlled by `.github/auto-publish.txt`, not by the deprecated repository variable. It currently contains `true` (LIVE). To pause, edit the file on the `main` branch and replace `true` with `false`; to resume change it back to `true`. Commit the change. Posts run at 08:23, 12:23, 16:23 and 20:23 UTC each day (09:23, 13:23, 17:23 and 21:23 in UK summer time). GitHub may delay or skip scheduled runs; it is best effort, not guaranteed to run to the minute.
 
-**Content limit:** 180 unique quote posts = 7.5 days at 24 posts per day. The pipeline stops when the bank runs out instead of silently repeating. Add original quotes to `quotes.json` to extend it.
+**Content limit:** 180 unique quote posts = 45 days at four posts per day. The pipeline stops when the bank runs out instead of silently repeating. Add original quotes to `quotes.json` to extend it.
 
-**Costs:** These Python images need no paid AI API. GitHub Actions for public repos and GitHub Pages can be free within applicable usage rules, and Meta may impose rate/permission restrictions. Hourly posting can harm engagement; consider testing 1–3 posts a day first.
+**Costs:** These Python images need no paid AI API. GitHub Actions for public repos and GitHub Pages can be free within applicable usage rules, and Meta may impose rate/permission restrictions.
 
 **Current status:** A live Meta API test on 2026-11-14 published quote 1 to both Instagram and Facebook, and the owner subsequently approved live scheduled publishing. GitHub Actions Secrets hold tokens; no token is stored in this repository. Rotate any previously exposed access tokens and review expiration/renewal. The GitHub connection does not transfer Windsor.ai tokens.
