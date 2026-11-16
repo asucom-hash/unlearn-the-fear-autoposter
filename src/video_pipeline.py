@@ -9,7 +9,6 @@ are original to this project.
 from __future__ import annotations
 
 import argparse
-import base64
 import json
 import os
 import random
@@ -155,22 +154,23 @@ def long_transcript(shape: dict, quotes: list[str]) -> str:
 
 
 def synthesize(text: str, output: Path, *, long_form: bool) -> None:
-    key = os.getenv("GOOGLE_TTS_API_KEY", "").strip()
-    if not key:
-        raise RuntimeError("Missing GOOGLE_TTS_API_KEY. Enable Google Cloud Text-to-Speech, then add its restricted API key as a GitHub secret.")
-    body = {
-        "input": {"text": text},
-        "voice": {"languageCode": "en-GB", "name": os.getenv("UTL_VOICE", "en-GB-Wavenet-D")},
-        "audioConfig": {"audioEncoding": "MP3", "speakingRate": 0.84 if long_form else 0.92, "pitch": -1.0},
-    }
-    response = requests.post("https://texttospeech.googleapis.com/v1/text:synthesize", params={"key": key}, json=body, timeout=90)
-    try:
-        data = response.json()
-    except ValueError as exc:
-        raise RuntimeError(f"Google TTS returned HTTP {response.status_code}") from exc
-    if not response.ok or "audioContent" not in data:
-        raise RuntimeError("Google TTS failed: " + str(data.get("error", {}).get("message", "unknown error"))[:300])
-    output.write_bytes(base64.b64decode(data["audioContent"]))
+    """Generate local narration without a cloud key or usage bill.
+
+    The default Piper voice is a public-domain English male model. The model
+    is cached by the Actions workflow after its first download. Use
+    PIPER_VOICE only for a voice whose model-card licence has been reviewed.
+    """
+    voice = os.getenv("PIPER_VOICE", "en_US-norman-medium")
+    data_dir = Path(os.getenv("PIPER_DATA_DIR", ROOT / ".piper-voices"))
+    data_dir.mkdir(parents=True, exist_ok=True)
+    wav = output.with_suffix(".wav")
+    model = data_dir / f"{voice}.onnx"
+    if not model.exists():
+        run(["python", "-m", "piper.download_voices", "--data-dir", str(data_dir), voice])
+    # Piper takes the complete script as an argument, avoiding a shell and
+    # keeping punctuation intact for a calmer, more natural read.
+    run(["python", "-m", "piper", "-m", voice, "--data-dir", str(data_dir), "-f", str(wav), "--", text])
+    run(["ffmpeg", "-y", "-i", str(wav), "-ar", "48000", "-c:a", "libmp3lame", "-b:a", "192k", str(output)])
 
 
 def plain(value: str) -> str:

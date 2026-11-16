@@ -38,7 +38,6 @@ jobs:
       META_PAGE_ID: ${{ vars.META_PAGE_ID }}
       META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
       META_IG_TOKEN: ${{ secrets.META_IG_TOKEN }}
-      GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
       YOUTUBE_TOKEN_JSON_B64: ${{ secrets.YOUTUBE_TOKEN_JSON_B64 }}
     steps:
       - uses: actions/checkout@v4
@@ -59,11 +58,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: .piper-voices
+          key: piper-en-us-norman-medium-v1
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
       - run: python -m pip install -r requirements.txt
       - name: Test video helpers
         run: python -m unittest discover -s tests -v
-      - name: Render horizontal long-form video and vertical trailer
+      - name: Render horizontal long-form video and vertical trailer with local narration
         run: python src/video_pipeline.py long
       - name: Commit pending video state only
         run: |
