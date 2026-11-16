@@ -57,12 +57,10 @@ def caption_with_visual_credits(post: dict) -> str:
         return post["caption"]
     lines = ["Visual credits:"]
     for credit in credits:
-        lines.append(f"{credit['title']} — {credit['creator']} ({credit['license']}): {credit['source']}")
+        lines.append(f"{credit['title'][:48]} — {credit['creator'][:48]} ({credit['license'][:24]}): {credit['source']}")
     caption = post["caption"] + "\n\n" + "\n".join(lines)
     if len(caption) > 2_200:
-        # Instagram has the shortest caption limit. Keep the core caption and
-        # enough credits to preserve attribution without causing a failed post.
-        return post["caption"] + "\n\nVisual credits: Wikimedia Commons; full source record retained in the automation state."
+        raise RuntimeError("Visual credits exceed Instagram's caption limit; choose fewer assets before publishing.")
     return caption
 
 
