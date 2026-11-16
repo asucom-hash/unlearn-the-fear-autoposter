@@ -192,6 +192,52 @@ def plain(value: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", value or "")).strip()
 
 
+def make_original_nature_fallback(output: Path, *, choice: int) -> dict:
+    """Create an original calm landscape when a licensed source is unavailable.
+
+    Wikimedia occasionally throttles a runner's image requests. A graceful,
+    original fallback means that transient rate limits cannot stop the daily
+    video workflow or substitute an unlicensed source.
+    """
+    width, height = 1080, 1920
+    rng = random.Random(choice)
+    image = Image.new("RGB", (width, height))
+    pixels = image.load()
+    sky_top = (18 + rng.randrange(14), 37 + rng.randrange(24), 61 + rng.randrange(35))
+    sky_bottom = (231 + rng.randrange(20), 159 + rng.randrange(36), 83 + rng.randrange(32))
+    for y in range(height):
+        ratio = y / (height - 1)
+        colour = tuple(round(sky_top[i] * (1 - ratio) + sky_bottom[i] * ratio) for i in range(3))
+        for x in range(width):
+            pixels[x, y] = colour
+    draw = ImageDraw.Draw(image, "RGBA")
+    sun_x = width // 2 + rng.randrange(-160, 161)
+    sun_y = int(height * 0.28) + rng.randrange(-75, 76)
+    for radius, alpha in ((220, 18), (150, 32), (90, 72)):
+        draw.ellipse((sun_x - radius, sun_y - radius, sun_x + radius, sun_y + radius), fill=(255, 236, 173, alpha))
+    draw.ellipse((sun_x - 56, sun_y - 56, sun_x + 56, sun_y + 56), fill=(255, 242, 188, 230))
+    horizon = int(height * 0.62)
+    distant = [(0, horizon)]
+    for x in range(-80, width + 100, 80):
+        peak = horizon - rng.randrange(40, 190)
+        distant.extend(((x + 40, peak), (x + 80, horizon + rng.randrange(-18, 35))))
+    distant.extend(((width, height), (0, height)))
+    draw.polygon(distant, fill=(47, 66, 78, 220))
+    near = [(0, int(height * 0.72))]
+    for x in range(-120, width + 150, 120):
+        peak = int(height * 0.72) - rng.randrange(45, 230)
+        near.extend(((x + 60, peak), (x + 120, int(height * 0.74) + rng.randrange(-25, 50))))
+    near.extend(((width, height), (0, height)))
+    draw.polygon(near, fill=(18, 34, 39, 238))
+    image.save(output, quality=94)
+    return {
+        "title": "Original calm landscape",
+        "creator": "Unlearn The Fear",
+        "license": "Original project artwork",
+        "source": "Generated locally by the Unlearn The Fear video pipeline",
+    }
+
+
 def download_commons_image(query: str, choice: int, output: Path) -> dict:
     """Download a usable Commons thumbnail and return its required credit.
 
@@ -227,27 +273,34 @@ def download_commons_image(query: str, choice: int, output: Path) -> dict:
         if source_url:
             permitted.append((page, info, licence))
     if not response.ok or not permitted:
-        raise RuntimeError(f"No permitted Wikimedia Commons image was found for {query!r}")
-    page, info, licence = permitted[choice % len(permitted)]
-    media = requests.get(
-        info.get("thumburl") or info["url"],
-        stream=True,
-        timeout=90,
-        headers={"User-Agent": "UnlearnTheFearVideoBot/1.0 (educational motivational video pipeline)"},
-    )
-    media.raise_for_status()
-    with output.open("wb") as handle:
-        for chunk in media.iter_content(1024 * 1024):
-            if chunk:
-                handle.write(chunk)
-    meta = info.get("extmetadata") or {}
-    artist = plain((meta.get("Artist") or {}).get("value", "Wikimedia Commons contributor"))
-    return {
-        "title": page.get("title", "Wikimedia Commons image"),
-        "creator": artist or "Wikimedia Commons contributor",
-        "license": plain((meta.get("LicenseShortName") or {}).get("value", "")),
-        "source": f"https://commons.wikimedia.org/?curid={page.get('pageid')}",
-    }
+        return make_original_nature_fallback(output, choice=choice)
+    # Try a few differently hosted/selected Commons images before falling
+    # back. This avoids retrying the exact image that received a 429 response.
+    for offset in range(min(4, len(permitted))):
+        page, info, licence = permitted[(choice + offset) % len(permitted)]
+        try:
+            media = requests.get(
+                info.get("thumburl") or info["url"],
+                stream=True,
+                timeout=90,
+                headers={"User-Agent": "UnlearnTheFearVideoBot/1.0 (educational motivational video pipeline)"},
+            )
+            media.raise_for_status()
+            with output.open("wb") as handle:
+                for chunk in media.iter_content(1024 * 1024):
+                    if chunk:
+                        handle.write(chunk)
+        except requests.RequestException:
+            continue
+        meta = info.get("extmetadata") or {}
+        artist = plain((meta.get("Artist") or {}).get("value", "Wikimedia Commons contributor"))
+        return {
+            "title": page.get("title", "Wikimedia Commons image"),
+            "creator": artist or "Wikimedia Commons contributor",
+            "license": plain((meta.get("LicenseShortName") or {}).get("value", "")),
+            "source": f"https://commons.wikimedia.org/?curid={page.get('pageid')}",
+        }
+    return make_original_nature_fallback(output, choice=choice)
 
 
 def make_overlay(path: Path, title: str, quote: str | None, *, width: int, height: int) -> None:
