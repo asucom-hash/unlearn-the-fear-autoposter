@@ -160,11 +160,10 @@ def synthesize(text: str, output: Path, *, long_form: bool) -> None:
     is cached by the Actions workflow after its first download. Use
     PIPER_VOICE only for a voice whose model-card licence has been reviewed.
     """
-    # Ryan is a fuller, more natural male voice than the original Norman
-    # model.  A slightly longer phoneme scale keeps the delivery calm rather
-    # than rushed without stretching or artificially pitching the audio.
-    voice = os.getenv("PIPER_VOICE", "en_US-ryan-high")
-    length_scale = float(os.getenv("PIPER_LENGTH_SCALE", "1.14"))
+    # HFC Male has a lower, warmer delivery. The longer phoneme scale is
+    # intentional: this channel's reflective narration needs space to land.
+    voice = os.getenv("PIPER_VOICE", "en_US-hfc_male-medium")
+    length_scale = float(os.getenv("PIPER_LENGTH_SCALE", "1.30"))
     if not 0.5 <= length_scale <= 2.0:
         raise ValueError("PIPER_LENGTH_SCALE must be between 0.5 and 2.0")
     data_dir = Path(os.getenv("PIPER_DATA_DIR", ROOT / ".piper-voices"))
@@ -379,7 +378,15 @@ def emphasise_ass(sentence: str) -> str:
     )
 
 
-def make_ass_captions(text: str, duration: float, output: Path, *, width: int, height: int) -> None:
+def make_ass_captions(
+    text: str,
+    duration: float,
+    output: Path,
+    *,
+    width: int,
+    height: int,
+    omit_final_sentence: bool = False,
+) -> None:
     """Write high-contrast, in-frame caption cards for FFmpeg/libass."""
     sentences = [s.strip() for s in text.replace("?", ".").replace("!", ".").split(".") if s.strip()]
     weights = [max(6, len(sentence.split())) for sentence in sentences]
@@ -416,12 +423,13 @@ def make_ass_captions(text: str, duration: float, output: Path, *, width: int, h
         seconds, centis = divmod(total_centis, 100)
         return f"{hours}:{minutes:02}:{seconds:02}.{centis:02}"
 
-    for number, (sentence, weight) in enumerate(zip(sentences, weights), start=1):
+    for index, (sentence, weight) in enumerate(zip(sentences, weights)):
         length = max(2.0, duration * weight / total)
         end = min(duration - 0.1, cursor + length)
-        rows = caption_rows(sentence, vertical=vertical)
-        caption = r"\N".join(emphasise_ass(row) for row in rows)
-        lines.append(f"Dialogue: 0,{stamp(cursor)},{stamp(end)},CaptionCard,,0,0,0,,{caption}")
+        if not (omit_final_sentence and index == len(sentences) - 1):
+            rows = caption_rows(sentence, vertical=vertical)
+            caption = r"\N".join(emphasise_ass(row) for row in rows)
+            lines.append(f"Dialogue: 0,{stamp(cursor)},{stamp(end)},CaptionCard,,0,0,0,,{caption}")
         cursor = end + 0.10
     output.write_text("\n".join(lines), encoding="utf-8")
 
@@ -449,7 +457,17 @@ def render_video(*, narration: Path, overlay: Path, output: Path, width: int, he
     visual = WORK / "visual.mp4"
     make_visual(clips, visual, width=width, height=height, duration=duration)
     subtitles = WORK / "captions.ass"
-    make_ass_captions(CURRENT_TRANSCRIPT, duration, subtitles, width=width, height=height)
+    # Captions must follow the spoken track, not the longer visual hold at the
+    # end of a Short.  Using the final video duration here made every line
+    # increasingly late when narration ended before the 28-second minimum.
+    make_ass_captions(
+        CURRENT_TRANSCRIPT,
+        audio_duration,
+        subtitles,
+        width=width,
+        height=height,
+        omit_final_sentence=height > width,
+    )
     # Generated sine-pad audio is original, avoids copyright claims, and stays
     # deliberately below the narration.
     chords = ((174.61, 261.63, 349.23), (146.83, 220.0, 293.66), (196.0, 246.94, 293.66), (130.81, 196.0, 261.63))
