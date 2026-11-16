@@ -1,6 +1,9 @@
 name: Daily Unlearn The Fear video
 
 on:
+  push:
+    paths:
+      - .github/youtube-short-test-now
   schedule:
     - cron: '30 17 * * *'
   workflow_dispatch:
@@ -50,6 +53,8 @@ jobs:
         run: |
           if [ "$GITHUB_EVENT_NAME" = "schedule" ] && [ "$(tr -d '[:space:]' < .github/video-auto-publish.txt)" = "true" ]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
           elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_PUBLISH" = "true" ]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
@@ -82,7 +87,16 @@ jobs:
         uses: actions/deploy-pages@v4
       - name: Publish daily video
         if: steps.mode.outputs.enabled == 'true'
-        run: python src/publish_videos.py short ${{ inputs.youtube_unlisted == true && '--youtube-unlisted' || '' }}
+        env:
+          YOUTUBE_UNLISTED: ${{ inputs.youtube_unlisted }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            python src/publish_videos.py short --youtube-unlisted --youtube-only
+          elif [ "$YOUTUBE_UNLISTED" = "true" ]; then
+            python src/publish_videos.py short --youtube-unlisted
+          else
+            python src/publish_videos.py short
+          fi
       - name: Safe preview
         if: steps.mode.outputs.enabled != 'true'
         run: echo 'Preview only. No platform video was published.'
