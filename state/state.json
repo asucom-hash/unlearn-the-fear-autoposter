@@ -1,5 +1,5 @@
 {
-  "next_quote": 21,
+  "next_quote": 22,
   "history": [
     {
       "quote_index": 0,
@@ -105,15 +105,11 @@
       "quote_index": 20,
       "instagram_post_id": "18653515078006987",
       "facebook_post_id": "549236748476560_1457844126456121"
+    },
+    {
+      "quote_index": 21,
+      "instagram_post_id": "18125049779315498",
+      "facebook_post_id": "549236748476560_1457950539778813"
     }
-  ],
-  "pending": {
-    "quote_index": 21,
-    "quote": "Not every unfinished story needs another chapter.",
-    "image_path": "posts/quote-0022.jpg",
-    "title": "Letting Go and Healing: Not every unfinished story needs another chapter",
-    "caption": "Letting Go and Healing: Not every unfinished story needs another chapter 🖤💛\n\n“Not every unfinished story needs another chapter.”\n\nEmotional healing is not about erasing the past. Letting go can help you move forward with self-compassion and more peace of mind.\n\nWhich part of this message speaks to you? Share your thoughts in the comments.\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #EmotionalGrowth #LettingGo #EmotionalHealing #HealingJourney",
-    "instagram_post_id": "18125049779315498",
-    "facebook_post_id": "549236748476560_1457950539778813"
-  }
+  ]
 }
