@@ -316,8 +316,11 @@ def render_video(*, narration: Path, overlay: Path, output: Path, width: int, he
     caption_size = max(14, round((42 if height > width else 32) * caption_scale))
     caption_margin = max(76, round((220 if height > width else 126) * caption_scale))
     style = f"FontName=DejaVu Sans,FontSize={caption_size},PrimaryColour=&H00F6F6F6,OutlineColour=&H90000000,BorderStyle=1,Outline=3,Alignment=2,MarginV={caption_margin}"
+    # SRT has no intrinsic canvas size. Explicitly declare it here so libass
+    # does not scale a modest 42px caption as though it belongs to a 288px
+    # preview canvas (which would make captions enormous on a 1080px Short).
     filter_graph = (
-        f"[0:v][1:v]overlay=0:0,subtitles={subtitles.name}:force_style='{style}'[v];"
+        f"[0:v][1:v]overlay=0:0,subtitles={subtitles.name}:original_size={width}x{height}:force_style='{style}'[v];"
         f"[2:a]volume=1[narration];[3:a]lowpass=f=1300,volume=0.17[bed];"
         "[narration][bed]amix=inputs=2:duration=first:dropout_transition=2[a]"
     )
