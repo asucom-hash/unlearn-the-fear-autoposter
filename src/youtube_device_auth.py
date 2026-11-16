@@ -76,7 +76,7 @@ def request_device_code(client_id: str) -> dict:
     return body
 
 
-def wait_for_tokens(client_id: str, device: dict) -> dict:
+def wait_for_tokens(client_id: str, client_secret: str, device: dict) -> dict:
     deadline = time.monotonic() + int(device.get("expires_in", 1800))
     interval = max(5, int(device.get("interval", 5)))
     while time.monotonic() < deadline:
@@ -85,6 +85,7 @@ def wait_for_tokens(client_id: str, device: dict) -> dict:
             TOKEN_URL,
             data={
                 "client_id": client_id,
+                "client_secret": client_secret,
                 "device_code": device["device_code"],
                 "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
             },
@@ -111,6 +112,7 @@ def wait_for_tokens(client_id: str, device: dict) -> dict:
 
 def main() -> None:
     client_id = require("YOUTUBE_OAUTH_CLIENT_ID")
+    client_secret = require("YOUTUBE_OAUTH_CLIENT_SECRET")
     github_token = require("META_GITHUB_SECRETS_TOKEN")
     repository = require("GITHUB_REPOSITORY")
 
@@ -119,16 +121,14 @@ def main() -> None:
     print("Enter this one-time code: " + device["user_code"])
     print("This run will wait for your approval, then save the connection privately.")
 
-    tokens = wait_for_tokens(client_id, device)
+    tokens = wait_for_tokens(client_id, client_secret, device)
     expiry = datetime.now(UTC) + timedelta(seconds=int(tokens.get("expires_in", 3600)))
     token_document = {
         "token": tokens["access_token"],
         "refresh_token": tokens["refresh_token"],
         "token_uri": TOKEN_URL,
         "client_id": client_id,
-        # A TV/limited-input OAuth client is a public client. The key is kept
-        # for compatibility with google-auth's authorised-user JSON format.
-        "client_secret": None,
+        "client_secret": client_secret,
         "scopes": [YOUTUBE_SCOPE],
         "expiry": expiry.isoformat(),
     }
