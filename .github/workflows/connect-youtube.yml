@@ -17,6 +17,7 @@ jobs:
     timeout-minutes: 35
     env:
       YOUTUBE_OAUTH_CLIENT_ID: ${{ inputs.client_id }}
+      YOUTUBE_OAUTH_CLIENT_SECRET: ${{ secrets.YOUTUBE_OAUTH_CLIENT_SECRET }}
       META_GITHUB_SECRETS_TOKEN: ${{ secrets.META_GITHUB_SECRETS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
