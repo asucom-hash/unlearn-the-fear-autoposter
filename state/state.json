@@ -1,5 +1,5 @@
 {
-  "next_quote": 28,
+  "next_quote": 29,
   "history": [
     {
       "quote_index": 0,
@@ -140,15 +140,11 @@
       "quote_index": 27,
       "instagram_post_id": "17919922152550818",
       "facebook_post_id": "549236748476560_1459170589656808"
+    },
+    {
+      "quote_index": 28,
+      "instagram_post_id": "18109728476356119",
+      "facebook_post_id": "549236748476560_1459352129638654"
     }
-  ],
-  "pending": {
-    "quote_index": 28,
-    "quote": "Peace is not found in controlling every outcome.",
-    "image_path": "posts/quote-0029.jpg",
-    "title": "Letting Go and Healing: Peace is not found in controlling every outcome",
-    "caption": "Letting Go and Healing: Peace is not found in controlling every outcome 🖤💛\n\n“Peace is not found in controlling every outcome.”\n\nA fresh chapter can begin when you release what you no longer need to carry. Healing and inner peace are built one gentle choice at a time.\n\nSave this reminder for the days you need it. What small step can you take today?\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #MovingForward #SelfCompassion #PeaceOfMind #EmotionalGrowth",
-    "instagram_post_id": "18109728476356119",
-    "facebook_post_id": "549236748476560_1459352129638654"
-  }
+  ]
 }
