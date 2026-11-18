@@ -1,5 +1,5 @@
 {
-  "next_quote": 31,
+  "next_quote": 32,
   "history": [
     {
       "quote_index": 0,
@@ -155,15 +155,11 @@
       "quote_index": 30,
       "instagram_post_id": "18080809073482745",
       "facebook_post_id": "549236748476560_1459912222915978"
+    },
+    {
+      "quote_index": 31,
+      "instagram_post_id": "17898254517614816",
+      "facebook_post_id": "549236748476560_1460093926231141"
     }
-  ],
-  "pending": {
-    "quote_index": 31,
-    "quote": "You are allowed to outgrow the things you once begged to keep.",
-    "image_path": "posts/quote-0032.jpg",
-    "title": "Letting Go and Healing: You are allowed to outgrow the things you once begged…",
-    "caption": "Letting Go and Healing: You are allowed to outgrow the things you once begged… 🖤💛\n\n“You are allowed to outgrow the things you once begged to keep.”\n\nA fresh chapter can begin when you release what you no longer need to carry. Healing and inner peace are built one gentle choice at a time.\n\nTake a moment to reflect: what would this look like in your own life?\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #SelfCompassion #PeaceOfMind #EmotionalGrowth #LettingGo",
-    "instagram_post_id": "17898254517614816",
-    "facebook_post_id": "549236748476560_1460093926231141"
-  }
+  ]
 }
