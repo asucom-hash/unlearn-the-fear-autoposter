@@ -1,5 +1,5 @@
 {
-  "next_quote": 32,
+  "next_quote": 33,
   "history": [
     {
       "quote_index": 0,
@@ -160,15 +160,11 @@
       "quote_index": 31,
       "instagram_post_id": "17898254517614816",
       "facebook_post_id": "549236748476560_1460093926231141"
+    },
+    {
+      "quote_index": 32,
+      "instagram_post_id": "18176467885454649",
+      "facebook_post_id": "549236748476560_1460269092880291"
     }
-  ],
-  "pending": {
-    "quote_index": 32,
-    "quote": "Forgiveness can begin long before the pain disappears.",
-    "image_path": "posts/quote-0033.jpg",
-    "title": "Letting Go and Healing: Forgiveness can begin long before the pain disappears",
-    "caption": "Letting Go and Healing: Forgiveness can begin long before the pain disappears 🖤💛\n\n“Forgiveness can begin long before the pain disappears.”\n\nFinding peace after change takes patience. This reminder is for anyone learning to let go, recover and choose a calmer future.\n\nSave this reminder for the days you need it. What small step can you take today?\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #LettingGo #EmotionalHealing #HealingJourney #InnerPeace",
-    "instagram_post_id": "18176467885454649",
-    "facebook_post_id": "549236748476560_1460269092880291"
-  }
+  ]
 }
