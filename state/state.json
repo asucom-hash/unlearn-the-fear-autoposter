@@ -1,5 +1,5 @@
 {
-  "next_quote": 37,
+  "next_quote": 38,
   "history": [
     {
       "quote_index": 0,
@@ -185,15 +185,11 @@
       "quote_index": 36,
       "instagram_post_id": "18048599885834379",
       "facebook_post_id": "549236748476560_1461242729449594"
+    },
+    {
+      "quote_index": 37,
+      "instagram_post_id": "18114262586169638",
+      "facebook_post_id": "549236748476560_1461395222767678"
     }
-  ],
-  "pending": {
-    "quote_index": 37,
-    "quote": "A worried mind is not always telling you the truth.",
-    "image_path": "posts/quote-0038.jpg",
-    "title": "Calm Your Mind: A worried mind is not always telling you the truth",
-    "caption": "Calm Your Mind: A worried mind is not always telling you the truth 🖤💛\n\n“A worried mind is not always telling you the truth.”\n\nFinding inner calm begins with a little space between a thought and a reaction. Give yourself permission to slow down and return to the present.\n\nWhich part of this message speaks to you? Share your thoughts in the comments.\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #MindfulMoments #CalmYourMind #Overthinking #MindfulLiving",
-    "instagram_post_id": "18114262586169638",
-    "facebook_post_id": "549236748476560_1461395222767678"
-  }
+  ]
 }
