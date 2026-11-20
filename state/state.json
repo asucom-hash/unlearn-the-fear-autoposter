@@ -1,5 +1,5 @@
 {
-  "next_quote": 39,
+  "next_quote": 40,
   "history": [
     {
       "quote_index": 0,
@@ -195,15 +195,11 @@
       "quote_index": 38,
       "instagram_post_id": "18127582033705765",
       "facebook_post_id": "549236748476560_1461872592719941"
+    },
+    {
+      "quote_index": 39,
+      "instagram_post_id": "18640807201031433",
+      "facebook_post_id": "549236748476560_1462075349366332"
     }
-  ],
-  "pending": {
-    "quote_index": 39,
-    "quote": "The loudest thought is not necessarily the wisest one.",
-    "image_path": "posts/quote-0040.jpg",
-    "title": "Calm Your Mind: The loudest thought is not necessarily the wisest one",
-    "caption": "Calm Your Mind: The loudest thought is not necessarily the wisest one 🖤💛\n\n“The loudest thought is not necessarily the wisest one.”\n\nOverthinking can make an uncertain moment feel bigger than it is. Mindfulness helps you notice difficult thoughts without letting them decide your next step.\n\nTake a moment to reflect: what would this look like in your own life?\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #InnerCalm #ThoughtAwareness #MindfulMoments #CalmYourMind",
-    "instagram_post_id": "18640807201031433",
-    "facebook_post_id": "549236748476560_1462075349366332"
-  }
+  ]
 }
