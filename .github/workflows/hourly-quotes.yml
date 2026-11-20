@@ -97,6 +97,9 @@ jobs:
       - uses: actions/upload-pages-artifact@v4
         with:
           path: docs
+      # The artifact API can take a few seconds to index a newly uploaded Pages artifact.
+      - name: Wait for Pages artifact availability
+        run: sleep 20
       - id: deployment
         uses: actions/deploy-pages@v4
       - name: Renew Facebook Page token if due
