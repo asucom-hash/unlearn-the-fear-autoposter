@@ -21,8 +21,9 @@ permissions:
   pages: write
   id-token: write
 
+# Serialize both site-publishing workflows: GitHub Pages uses a shared artifact name.
 concurrency:
-  group: unlearn-the-fear-video-pages
+  group: unlearn-the-fear-pages-deploy
   cancel-in-progress: false
 
 jobs:
