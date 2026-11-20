@@ -581,6 +581,7 @@ def prepare(kind: str) -> dict:
         trailer_overlay = WORK / "trailer-overlay.png"
         make_overlay(trailer_overlay, "New guided reflection", shape["title"], width=1080, height=1920)
         trailer_output = DOCS / pending["trailer_path"]
+        trailer_output.parent.mkdir(parents=True, exist_ok=True)
         render_video(narration=trailer_narration, overlay=trailer_overlay, output=trailer_output, width=1080, height=1920, quote=shape["title"], clips=clips[:2], seed=seed + 1)
     pending["duration_seconds"] = round(duration, 1)
     save_state(state)
