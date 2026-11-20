@@ -36,5 +36,55 @@
       }
     ],
     "duration_seconds": 28.0
+  },
+  "pending_long": {
+    "episode": 0,
+    "title": "How to Take the Next Step When Fear Feels Loud",
+    "caption": "How to Take the Next Step When Fear Feels Loud — an original guided reflection from Unlearn The Fear.\n\nLet Go of Fear. Discover Your Strength. Live Your Life.\n\n#UnlearnTheFear #Mindfulness #Motivation #PersonalGrowth",
+    "video_path": "long-form/episode-001.mp4",
+    "trailer_path": "reels/episode-001-trailer.mp4",
+    "theme": 0,
+    "youtube_id": null,
+    "facebook_post_id": null,
+    "instagram_post_id": null,
+    "visual_credits": [
+      {
+        "title": "File:Ahuriri River before sunrise, Canterbury, New Zealand.jpg",
+        "creator": "Michal Klajban",
+        "license": "CC BY-SA 4.0",
+        "source": "https://commons.wikimedia.org/?curid=78444828"
+      },
+      {
+        "title": "File:20240913 FS SR Laona Forest Pond 0001 (54103237486).jpg",
+        "creator": "usfs_Eastern_Region",
+        "license": "Public domain",
+        "source": "https://commons.wikimedia.org/?curid=185477089"
+      },
+      {
+        "title": "File:202408 The sea horizon was only two seabirds fishing at the distance in the morning.jpg",
+        "creator": "Junyu-K",
+        "license": "CC BY 4.0",
+        "source": "https://commons.wikimedia.org/?curid=158991060"
+      },
+      {
+        "title": "File:Lake Windermere on a misty morning.JPG",
+        "creator": "Mkonikkara",
+        "license": "CC BY-SA 3.0",
+        "source": "https://commons.wikimedia.org/?curid=19518926"
+      },
+      {
+        "title": "File:Dülmen, Hausdülmen, Golden Retriever -- 2022 -- 5945.jpg",
+        "creator": "Dietmar Rabich",
+        "license": "CC BY-SA 4.0",
+        "source": "https://commons.wikimedia.org/?curid=192179542"
+      },
+      {
+        "title": "File:Karwia, nordic walking signs.JPG",
+        "creator": "MOs810",
+        "license": "CC BY-SA 4.0",
+        "source": "https://commons.wikimedia.org/?curid=35842092"
+      }
+    ],
+    "duration_seconds": 420.0
   }
 }
