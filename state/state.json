@@ -1,5 +1,5 @@
 {
-  "next_quote": 42,
+  "next_quote": 43,
   "history": [
     {
       "quote_index": 0,
@@ -210,15 +210,11 @@
       "quote_index": 41,
       "instagram_post_id": "18102920783436700",
       "facebook_post_id": "549236748476560_1462427452664455"
+    },
+    {
+      "quote_index": 42,
+      "instagram_post_id": "18074562239505696",
+      "facebook_post_id": "549236748476560_1462891035951430"
     }
-  ],
-  "pending": {
-    "quote_index": 42,
-    "quote": "Silence can reveal what worry tries to hide.",
-    "image_path": "posts/quote-0043.jpg",
-    "title": "Calm Your Mind: Silence can reveal what worry tries to hide",
-    "caption": "Calm Your Mind: Silence can reveal what worry tries to hide 🖤💛\n\n“Silence can reveal what worry tries to hide.”\n\nOverthinking can make an uncertain moment feel bigger than it is. Mindfulness helps you notice difficult thoughts without letting them decide your next step.\n\nShare this with someone who could use encouragement today.\n\nFollow Unlearn The Fear for thoughtful motivation, mindset tips and personal growth.\n\n#UnlearnTheFear #ThoughtAwareness #MindfulMoments #CalmYourMind #Overthinking",
-    "instagram_post_id": "18074562239505696",
-    "facebook_post_id": "549236748476560_1462891035951430"
-  }
+  ]
 }
