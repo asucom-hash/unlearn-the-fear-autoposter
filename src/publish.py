@@ -7,6 +7,9 @@ from check_meta import check as verify_account
 class MetaRateLimitError(RuntimeError):
     pass
 
+class MetaMediaProcessingError(RuntimeError):
+    pass
+
 def graph(method,path,params):
     ver=os.getenv('META_GRAPH_VERSION','v27.0').strip()
     r=requests.request(method,'https://graph.facebook.com/'+ver+'/'+path,
@@ -74,7 +77,7 @@ def main():
             for _ in range(16):
                 status=graph('GET',creation_id,{'fields':'status_code','access_token':ig_token}).get('status_code')
                 if status=='FINISHED':ready=True;break
-                if status in ('ERROR','EXPIRED'):raise RuntimeError('Instagram processing failed: '+status)
+                if status in ('ERROR','EXPIRED'):raise MetaMediaProcessingError('Instagram processing failed: '+status)
                 time.sleep(5)
             if not ready:raise RuntimeError('Instagram image not ready; retry carefully')
             out=graph('POST',ig+'/media_publish',{'creation_id':creation_id,'access_token':ig_token})
@@ -89,6 +92,14 @@ def main():
     except MetaRateLimitError as exc:
         # Preserve state and resume this exact post on the next scheduled attempt.
         print('Meta rate limit; publication deferred without creating a duplicate: '+str(exc))
+        return
+    except MetaMediaProcessingError as exc:
+        # A terminal container cannot later be published. Drop only that failed
+        # container; keep the pending post so the next scheduled run creates one
+        # fresh container without duplicating any published content.
+        post.pop('instagram_creation_id',None)
+        checkpoint('Discard failed Instagram media container',state)
+        print('Instagram processing failed; publication deferred for a fresh container: '+str(exc))
         return
     if post['instagram_post_id'] and post['facebook_post_id']:
         state.setdefault('history',[]).append({'quote_index':post['quote_index'],
