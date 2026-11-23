@@ -1,12 +1,13 @@
-name: Daily Unlearn The Fear video
+name: Three weekly Unlearn The Fear Shorts
 
 on:
   schedule:
-    - cron: '30 17 * * *'
+    # Monday, Wednesday and Friday at 17:30 UTC.
+    - cron: '30 17 * * 1,3,5'
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Publish the real daily video to YouTube, Facebook and Instagram?'
+        description: 'Publish the real Short to YouTube, Facebook and Instagram?'
         type: boolean
         required: true
         default: false
@@ -67,14 +68,14 @@ jobs:
       - run: python -m pip install -r requirements.txt
       - name: Test video helpers
         run: python -m unittest discover -s tests -v
-      - name: Render daily vertical video with a local male voice
+      - name: Render vertical Short with a local male voice
         run: python src/video_pipeline.py short
       - name: Commit pending video state only
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add state/video_state.json
-          if ! git diff --cached --quiet; then git commit -m 'Prepare daily video'; git push; fi
+          if ! git diff --cached --quiet; then git commit -m 'Prepare Unlearn The Fear Short'; git push; fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
@@ -84,7 +85,7 @@ jobs:
         run: sleep 20
       - id: deployment
         uses: actions/deploy-pages@v4
-      - name: Publish daily video
+      - name: Publish Short
         if: steps.mode.outputs.enabled == 'true'
         env:
           YOUTUBE_UNLISTED: ${{ inputs.youtube_unlisted }}
