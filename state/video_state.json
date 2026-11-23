@@ -1,5 +1,5 @@
 {
-  "next_short_quote": 25,
+  "next_short_quote": 26,
   "next_long_episode": 0,
   "short_history": [
     {
@@ -7,36 +7,15 @@
       "youtube_id": "mPmv4owMq3I",
       "instagram_post_id": "17966261430235365",
       "facebook_post_id": "1398798842099887"
+    },
+    {
+      "quote_index": 25,
+      "youtube_id": "kv33zy2mlbo",
+      "instagram_post_id": "18114017324622256",
+      "facebook_post_id": "1173058188740715"
     }
   ],
   "long_history": [],
-  "pending_short": {
-    "quote_index": 25,
-    "quote": "Sometimes healing sounds like silence instead of an explanation.",
-    "title": "Letting go with kindness | A Daily Reminder",
-    "caption": "Letting go with kindness.\n\n“Sometimes healing sounds like silence instead of an explanation.”\n\nA quiet reminder from Unlearn The Fear.\n\n#UnlearnTheFear #Mindset #Motivation #PersonalGrowth #InnerPeace",
-    "video_path": "reels/daily-0026.mp4",
-    "topic": "Healing",
-    "query": "calm ocean sunrise",
-    "youtube_id": "kv33zy2mlbo",
-    "instagram_post_id": "18114017324622256",
-    "facebook_post_id": "1173058188740715",
-    "visual_credits": [
-      {
-        "title": "File:Dramatic Atlantic Ocean sunrise under a cloudy sky near Sagres, Faro, Algarve, Portugal, February 2025 (54452275690).jpg",
-        "creator": "Sergei Gussev",
-        "license": "CC BY 2.0",
-        "source": "https://commons.wikimedia.org/?curid=191922195"
-      },
-      {
-        "title": "File:Dead Calm - Sunset at the Bight of Exmouth - Francis Danby - 306-1976.jpg",
-        "creator": "Francis Danby",
-        "license": "Public domain",
-        "source": "https://commons.wikimedia.org/?curid=143818165"
-      }
-    ],
-    "duration_seconds": 28.0
-  },
   "pending_long": {
     "episode": 0,
     "title": "How to Take the Next Step When Fear Feels Loud",
