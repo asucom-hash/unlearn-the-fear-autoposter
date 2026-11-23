@@ -1,8 +1,9 @@
-name: Twice-weekly Unlearn The Fear reflection
+name: Weekly Unlearn The Fear reflection
 
 on:
   schedule:
-    - cron: '00 19 * * 2,5'
+    # Sunday at 19:00 UTC. Together with three Shorts, this makes four videos weekly.
+    - cron: '00 19 * * 0'
   workflow_dispatch:
     inputs:
       publish:
