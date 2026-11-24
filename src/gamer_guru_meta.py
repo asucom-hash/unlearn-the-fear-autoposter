@@ -101,6 +101,24 @@ def check_access(page_id: str, page_token: str, ig_id: str, ig_token: str) -> No
     print(f"Verified Meta access for {page.get('name', 'the configured Facebook Page')} and @{account['username']}.")
 
 
+def find_existing_instagram_reel(ig_id: str, ig_token: str, youtube_url: str) -> tuple[str, str] | None:
+    """Find a recently published native Reel by its preserved YouTube attribution."""
+    if not youtube_url:
+        return None
+    media = graph(
+        "GET",
+        f"{ig_id}/media",
+        ig_token,
+        params={"fields": "id,caption,media_type,permalink,timestamp", "limit": "50"},
+    )
+    for item in media.get("data") or []:
+        if item.get("media_type") == "REELS" and youtube_url in str(item.get("caption") or ""):
+            permalink = str(item.get("permalink") or "")
+            if permalink:
+                return str(item["id"]), permalink
+    return None
+
+
 def upload_facebook_reel(page_id: str, page_token: str, video_url: str, title: str, caption: str) -> str:
     """Use Meta's three-phase Page Reels API rather than making an ordinary video post."""
     start = graph("POST", f"{page_id}/video_reels", page_token, data={"upload_phase": "start"})
@@ -238,8 +256,14 @@ def main() -> None:
             checkpoint(state, f"Record existing Gamer Guru Instagram Reel {post_key}")
             print("Instagram Reel was already published and recorded; skipping it.")
         else:
-            post["instagram_reel_id"] = upload_instagram_reel(ig_id, ig_token, video_url, caption)
-            checkpoint(state, f"Record Gamer Guru Instagram Reel {post_key}")
+            existing_instagram = find_existing_instagram_reel(ig_id, ig_token, args.youtube_url.strip())
+            if existing_instagram:
+                post["instagram_reel_id"], post["instagram_reel_url"] = existing_instagram
+                checkpoint(state, f"Record detected Gamer Guru Instagram Reel {post_key}")
+                print("Matching Instagram Reel is already live; skipping it.")
+            else:
+                post["instagram_reel_id"] = upload_instagram_reel(ig_id, ig_token, video_url, caption)
+                checkpoint(state, f"Record Gamer Guru Instagram Reel {post_key}")
     else:
         print("Instagram Reel was already recorded; skipping it.")
     print("Published Gamer Guru native Reels to Facebook and Instagram.")
