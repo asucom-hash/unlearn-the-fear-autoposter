@@ -180,6 +180,7 @@ def main() -> None:
     parser.add_argument("--caption", required=True)
     parser.add_argument("--youtube-url", default="")
     parser.add_argument("--post-key", default="")
+    parser.add_argument("--instagram-already-published-url", default="", help="Existing Instagram Reel URL; skip Instagram publishing to avoid a duplicate.")
     parser.add_argument("--publish", action="store_true", help="Create public Meta Reels. Without this flag, only credentials are checked.")
     args = parser.parse_args()
 
@@ -216,8 +217,18 @@ def main() -> None:
     else:
         print("Facebook Reel was already recorded; skipping it.")
     if not post.get("instagram_reel_id"):
-        post["instagram_reel_id"] = upload_instagram_reel(ig_id, ig_token, video_url, caption)
-        checkpoint(state, f"Record Gamer Guru Instagram Reel {post_key}")
+        existing_instagram_url = args.instagram_already_published_url.strip()
+        if existing_instagram_url:
+            parsed_instagram = urlparse(existing_instagram_url)
+            if parsed_instagram.scheme != "https" or not (parsed_instagram.hostname or "").endswith("instagram.com"):
+                raise ValueError("instagram_already_published_url must be an HTTPS Instagram Reel URL")
+            post["instagram_reel_id"] = f"preexisting:{existing_instagram_url}"
+            post["instagram_reel_url"] = existing_instagram_url
+            checkpoint(state, f"Record existing Gamer Guru Instagram Reel {post_key}")
+            print("Instagram Reel was already published and recorded; skipping it.")
+        else:
+            post["instagram_reel_id"] = upload_instagram_reel(ig_id, ig_token, video_url, caption)
+            checkpoint(state, f"Record Gamer Guru Instagram Reel {post_key}")
     else:
         print("Instagram Reel was already recorded; skipping it.")
     print("Published Gamer Guru native Reels to Facebook and Instagram.")
