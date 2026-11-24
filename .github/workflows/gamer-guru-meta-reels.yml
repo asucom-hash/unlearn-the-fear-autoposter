@@ -23,6 +23,10 @@ on:
         description: "Optional stable key; leave blank to derive one from video_url"
         required: false
         type: string
+      instagram_already_published_url:
+        description: "Existing Instagram Reel URL, if this Short was already published there; prevents an Instagram duplicate"
+        required: false
+        type: string
       publish:
         description: "Publish public native Reels now (off = read-only credential validation)"
         required: true
@@ -60,10 +64,12 @@ jobs:
           CAPTION: ${{ inputs.caption }}
           YOUTUBE_URL: ${{ inputs.youtube_url }}
           POST_KEY: ${{ inputs.post_key }}
+          INSTAGRAM_ALREADY_PUBLISHED_URL: ${{ inputs.instagram_already_published_url }}
           PUBLISH: ${{ inputs.publish }}
         run: |
           args=(--video-url "$VIDEO_URL" --title "$TITLE" --caption "$CAPTION")
           if [ -n "$YOUTUBE_URL" ]; then args+=(--youtube-url "$YOUTUBE_URL"); fi
           if [ -n "$POST_KEY" ]; then args+=(--post-key "$POST_KEY"); fi
+          if [ -n "$INSTAGRAM_ALREADY_PUBLISHED_URL" ]; then args+=(--instagram-already-published-url "$INSTAGRAM_ALREADY_PUBLISHED_URL"); fi
           if [ "$PUBLISH" = "true" ]; then args+=(--publish); fi
           python src/gamer_guru_meta.py "${args[@]}"
