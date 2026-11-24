@@ -128,7 +128,9 @@ def upload_facebook_reel(page_id: str, page_token: str, video_url: str, title: s
     for _ in range(36):
         status = graph("GET", video_id, page_token, params={"fields": "status"}).get("status") or {}
         phase = status.get("processing_phase") or {}
-        if phase.get("status") == "complete":
+        # Meta reports completion through video_status=ready; some upload
+        # sessions do not transition the nested processing_phase to complete.
+        if phase.get("status") == "complete" or status.get("video_status") == "ready":
             break
         if phase.get("status") == "error" or status.get("video_status") == "error":
             error = phase.get("error") or {}
