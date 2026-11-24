@@ -1,0 +1,55 @@
+name: Publish queued Gamer Guru Meta Reel
+
+on:
+  push:
+    paths:
+      - state/gamer-guru-meta-queue.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gamer-guru-meta-reels
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event.head_commit.message == 'Queue Gamer Guru Meta post'
+    runs-on: ubuntu-latest
+    env:
+      META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION || 'v27.0' }}
+      GAMER_GURU_META_PAGE_ID: ${{ vars.GAMER_GURU_META_PAGE_ID }}
+      GAMER_GURU_META_IG_USER_ID: ${{ vars.GAMER_GURU_META_IG_USER_ID }}
+      GAMER_GURU_META_PAGE_TOKEN: ${{ secrets.GAMER_GURU_META_PAGE_TOKEN }}
+      GAMER_GURU_META_IG_TOKEN: ${{ secrets.GAMER_GURU_META_IG_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - name: Publish the queued native Meta Reel
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+
+          item = json.loads(Path("state/gamer-guru-meta-queue.json").read_text(encoding="utf-8"))
+          if item.get("status") != "ready":
+              raise SystemExit("Queue item is not ready; no Reel will be published.")
+          args = [
+              "python", "src/gamer_guru_meta.py",
+              "--video-url", item["video_url"],
+              "--title", item["title"],
+              "--caption", item["caption"],
+              "--youtube-url", item["youtube_url"],
+              "--post-key", item["post_key"],
+              "--publish",
+          ]
+          if item.get("instagram_already_published_url"):
+              args += ["--instagram-already-published-url", item["instagram_already_published_url"]]
+          subprocess.run(args, check=True)
+          PY
