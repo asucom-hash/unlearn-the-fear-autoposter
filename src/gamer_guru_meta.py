@@ -120,7 +120,8 @@ def upload_facebook_reel(page_id: str, page_token: str, video_url: str, title: s
     except ValueError as exc:
         raise RuntimeError(f"Meta rejected the Facebook Reel media upload (HTTP {upload.status_code})") from exc
     if not upload.ok or not upload_payload.get("success"):
-        raise RuntimeError("Meta could not ingest the Facebook Reel source video")
+        detail = upload_payload.get("error") or upload_payload
+        raise RuntimeError(f"Meta could not ingest the Facebook Reel source video: {str(detail)[:600]}")
 
     for _ in range(36):
         status = graph("GET", video_id, page_token, params={"fields": "status"}).get("status") or {}
