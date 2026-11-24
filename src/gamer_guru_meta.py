@@ -109,10 +109,12 @@ def upload_facebook_reel(page_id: str, page_token: str, video_url: str, title: s
     if not video_id or not upload_url:
         raise RuntimeError("Meta did not return a Facebook Reel upload session")
 
+    # Meta's hosted-Reel endpoint reads the source URL from the file_url HTTP
+    # header. Sending it as form data makes Meta treat the request as a local
+    # resumable upload and reject the absent numeric offset header.
     upload = requests.post(
         upload_url,
-        data={"file_url": video_url},
-        headers={"Authorization": f"OAuth {page_token}"},
+        headers={"Authorization": f"OAuth {page_token}", "file_url": video_url},
         timeout=180,
     )
     try:
