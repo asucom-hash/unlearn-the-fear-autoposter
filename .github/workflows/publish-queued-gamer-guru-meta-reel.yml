@@ -22,6 +22,10 @@ jobs:
       GAMER_GURU_META_IG_USER_ID: ${{ vars.GAMER_GURU_META_IG_USER_ID }}
       GAMER_GURU_META_PAGE_TOKEN: ${{ secrets.GAMER_GURU_META_PAGE_TOKEN }}
       GAMER_GURU_META_IG_TOKEN: ${{ secrets.GAMER_GURU_META_IG_TOKEN }}
+      META_USER_TOKEN: ${{ secrets.META_USER_TOKEN }}
+      META_APP_ID: ${{ vars.META_APP_ID }}
+      META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+      META_GITHUB_SECRETS_TOKEN: ${{ secrets.META_GITHUB_SECRETS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,6 +34,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -r requirements.txt
+      - name: Renew Gamer Guru Meta credentials
+        run: python src/refresh_gamer_guru_meta_tokens.py
       - name: Publish the queued native Meta Reel
         run: |
           python - <<'PY'
