@@ -125,22 +125,23 @@ def upload_facebook_reel(page_id: str, page_token: str, video_url: str, title: s
         detail = upload_payload.get("error") or upload_payload
         raise RuntimeError(f"Meta could not ingest the Facebook Reel source video: {str(detail)[:600]}")
 
+    # Meta's hosted upload is complete before the finish call. Processing and
+    # publishing only begin after finish sets video_state=PUBLISHED.
     last_status: dict = {}
     for _ in range(36):
         status = graph("GET", video_id, page_token, params={"fields": "status"}).get("status") or {}
         last_status = status
-        phase = status.get("processing_phase") or {}
-        # Meta reports completion through video_status=ready; some upload
-        # sessions do not transition the nested processing_phase to complete.
-        if phase.get("status") == "complete" or status.get("video_status") == "ready":
+        upload_phase = status.get("uploading_phase") or {}
+        video_status = status.get("video_status")
+        if upload_phase.get("status") == "complete" or video_status in {"upload_complete", "ready"}:
             break
-        if phase.get("status") == "error" or status.get("video_status") == "error":
-            error = phase.get("error") or {}
-            raise RuntimeError(f"Facebook Reel processing failed: {error.get('message', 'unknown error')}")
-        time.sleep(10)
+        if upload_phase.get("status") == "error" or video_status in {"error", "upload_failed"}:
+            error = upload_phase.get("error") or {}
+            raise RuntimeError(f"Facebook Reel upload failed: {error.get('message', str(status))}")
+        time.sleep(5)
     else:
         raise RuntimeError(
-            "Facebook Reel did not finish processing before the safety timeout: "
+            "Facebook Reel upload did not complete before the safety timeout: "
             + str(last_status)[:600]
         )
 
