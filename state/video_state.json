@@ -65,5 +65,32 @@
       }
     ],
     "duration_seconds": 420.0
+  },
+  "pending_short": {
+    "quote_index": 26,
+    "quote": "You can honour a memory without making it your home.",
+    "title": "Letting go with kindness | A Daily Reminder",
+    "caption": "Letting go with kindness.\n\n“You can honour a memory without making it your home.”\n\nA quiet reminder from Unlearn The Fear.\n\n#UnlearnTheFear #Mindset #Motivation #PersonalGrowth #InnerPeace",
+    "video_path": "reels/daily-0027.mp4",
+    "topic": "Healing",
+    "query": "calm ocean sunrise",
+    "youtube_id": null,
+    "instagram_post_id": null,
+    "facebook_post_id": null,
+    "visual_credits": [
+      {
+        "title": "File:Bull Island Sunrise Dublin Ireland Seascape Photography (201643101).jpeg",
+        "creator": "Giuseppe Milo",
+        "license": "CC BY 3.0",
+        "source": "https://commons.wikimedia.org/?curid=71466997"
+      },
+      {
+        "title": "File:The warm breeze of nature and calmness of water reminds us to pause and breath.jpg",
+        "creator": "Dionisia.besas",
+        "license": "CC BY-SA 4.0",
+        "source": "https://commons.wikimedia.org/?curid=118291839"
+      }
+    ],
+    "duration_seconds": 28.0
   }
 }
